@@ -1,0 +1,17 @@
+:root {
+  --bg: #0e0f13;
+  --card: #161820;
+  --text: #e9edf1;
+  --muted: #9aa3ad;
+  --accent: #6cf18a;
+  --border: #2a2f3a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+}
+.app { max-width: 960px; margin: 0 auto; padding: 16px; }
+header h1 { margin: 0 0 6px; font-size: 24px; }
+.subtitle { margin: 0 0 16px; color: var(--muted); }
