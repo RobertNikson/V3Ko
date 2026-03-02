@@ -10,6 +10,12 @@ const selInfo = document.getElementById('selInfo');
 const upgradeBtn = document.getElementById('upgradeBtn');
 const sellBtn = document.getElementById('sellBtn');
 
+const menu = document.getElementById('menu');
+const settings = document.getElementById('settings');
+const applyBtn = document.getElementById('applyBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const backBtn = document.getElementById('backBtn');
+
 let W=0,H=0;
 function resize(){
   W = canvas.clientWidth; H = canvas.clientHeight;
@@ -24,7 +30,8 @@ function gridSize(){grid.size = Math.min(W/grid.cols, H/grid.rows);}
 const state = {
   hp:20, gold:100, wave:0,
   towers:[], enemies:[], bullets:[], running:false,
-  selectedType:'basic', selectedTower:null
+  selectedType:'basic', selectedTower:null,
+  difficulty:'easy', speed:1, density:1
 };
 
 const costs = {basic:20, slow:30, aoe:40};
@@ -96,11 +103,13 @@ function draw(){
 
 function spawnWave(){
   state.wave++; waveEl.textContent = state.wave;
-  const count = 6 + state.wave;
+  const base = 6 + state.wave;
+  const count = Math.round(base * state.density);
   for(let i=0;i<count;i++){
     state.enemies.push({
-      t: -i*25, seg:0, speed:1 + state.wave*0.05,
-      hp: 20 + state.wave*3, maxHp: 20 + state.wave*3,
+      t: -i*25, seg:0, speed:(1 + state.wave*0.05) * state.speed,
+      hp: (20 + state.wave*3) * (state.difficulty==='hard'?1.3:state.difficulty==='normal'?1.1:1),
+      maxHp: (20 + state.wave*3) * (state.difficulty==='hard'?1.3:state.difficulty==='normal'?1.1:1),
       x:0, y:0
     });
   }
@@ -108,7 +117,7 @@ function spawnWave(){
 
 function updateTowers(){
   state.towers.forEach(t=>{
-    t.cooldown = (t.cooldown||0) - 1;
+    t.cooldown = (t.cooldown||0) - 1*state.speed;
     if(t.cooldown>0) return;
     // find target in range
     const tx = (t.x+0.5)*grid.size, ty=(t.y+0.5)*grid.size;
@@ -122,7 +131,7 @@ function updateTowers(){
     if(!target) return;
     t.cooldown = fireRates[t.type];
     state.bullets.push({
-      x:tx, y:ty, target, speed:4, dmg:damages[t.type], type:t.type
+      x:tx, y:ty, target, speed:4*state.speed, dmg:damages[t.type], type:t.type
     });
   });
 }
@@ -150,7 +159,7 @@ function updateBullets(){
 
 function updateEnemies(){
   state.enemies.forEach(e=>{
-    e.t += 1;
+    e.t += 1*state.speed;
     if(e.t < 0) return;
     const a = path[e.seg]; const b = path[e.seg+1];
     if(!b){
@@ -223,4 +232,39 @@ startBtn.addEventListener('click',()=>{
 
 [...document.querySelectorAll('.tower')].forEach(btn=>{
   btn.addEventListener('click',()=>{state.selectedType=btn.dataset.type;});
+});
+
+// menu logic
+function setActive(btn){
+  const parent = btn.parentElement;
+  [...parent.querySelectorAll('.chip')].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+[...menu.querySelectorAll('.chip')].forEach(btn=>btn.addEventListener('click',()=>{
+  setActive(btn);
+  if(btn.dataset.level) state.difficulty = btn.dataset.level;
+  if(btn.dataset.gold) { state.gold = +btn.dataset.gold; goldEl.textContent=state.gold; }
+  if(btn.dataset.hp) { state.hp = +btn.dataset.hp; hpEl.textContent=state.hp; }
+}));
+
+[...settings.querySelectorAll('.chip')].forEach(btn=>btn.addEventListener('click',()=>{
+  setActive(btn);
+  if(btn.dataset.speed) state.speed = +btn.dataset.speed;
+  if(btn.dataset.density) state.density = +btn.dataset.density;
+}));
+
+applyBtn.addEventListener('click',()=>{
+  menu.classList.add('hidden');
+  settings.classList.add('hidden');
+});
+
+settingsBtn.addEventListener('click',()=>{
+  menu.classList.add('hidden');
+  settings.classList.remove('hidden');
+});
+
+backBtn.addEventListener('click',()=>{
+  settings.classList.add('hidden');
+  menu.classList.remove('hidden');
 });

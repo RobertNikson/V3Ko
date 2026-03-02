@@ -12,3 +12,16 @@
 .hint{color:var(--muted);font-size:12px;line-height:1.4}
 hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 @media(max-width:860px){.layout{grid-template-columns:1fr}#game{height:420px}}
+
+/* меню */
+.menu{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,16,0.85);backdrop-filter:blur(6px)}
+.menu.hidden{display:none}
+.menu-card{width:min(520px,92vw);background:#131722;border:1px solid var(--border);border-radius:16px;padding:18px}
+.menu-card h1,.menu-card h2{margin:0 0 8px 0}
+.group{margin:12px 0}
+label{display:block;color:var(--muted);margin-bottom:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#0f1218;color:var(--text);cursor:pointer}
+.chip.active{border-color:var(--accent);color:var(--accent)}
+button.full{flex:1}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
