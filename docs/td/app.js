@@ -9,6 +9,7 @@ const startBtn = document.getElementById('startBtn');
 const selInfo = document.getElementById('selInfo');
 const upgradeBtn = document.getElementById('upgradeBtn');
 const sellBtn = document.getElementById('sellBtn');
+const soundBtn = document.getElementById('soundBtn');
 
 const menu = document.getElementById('menu');
 const settings = document.getElementById('settings');
@@ -31,20 +32,38 @@ const state = {
   hp:20, gold:100, wave:0,
   towers:[], enemies:[], bullets:[], running:false,
   selectedType:'basic', selectedTower:null,
-  difficulty:'easy', speed:1, density:1
+  difficulty:'easy', speed:1, density:1,
+  sound:true
 };
 
-const costs = {basic:20, slow:30, aoe:40};
+// баланс
+const costs = {basic:20, slow:28, aoe:38};
 const colors = {basic:'#6cf18a', slow:'#6ccff1', aoe:'#f1d36c'};
-const ranges = {basic:3.2, slow:3.6, aoe:2.8};
-const fireRates = {basic:30, slow:40, aoe:50};
-const damages = {basic:8, slow:5, aoe:6};
+const ranges = {basic:3.1, slow:3.5, aoe:2.7};
+const fireRates = {basic:28, slow:40, aoe:48};
+const damages = {basic:7, slow:4, aoe:6};
 
 const path = [
   {x:0,y:4},{x:4,y:4},{x:4,y:2},{x:9,y:2},{x:9,y:7},{x:15,y:7}
 ];
 
 function cellToPx(c){ return {x:c.x*grid.size, y:c.y*grid.size}; }
+
+// --- Sound (WebAudio) ---
+let audioCtx = null;
+function beep(freq=440, dur=0.08, type='sine', vol=0.05){
+  if(!state.sound) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
 
 function draw(){
   gridSize();
@@ -80,7 +99,7 @@ function draw(){
 
   // enemies
   state.enemies.forEach(e=>{
-    ctx.fillStyle='#f16c6c';
+    ctx.fillStyle=e.type==='fast'?'#6ccff1':e.type==='tank'?'#f1d36c':'#f16c6c';
     ctx.beginPath();
     ctx.arc(e.x, e.y, grid.size*0.18, 0, Math.PI*2);
     ctx.fill();
@@ -106,20 +125,24 @@ function spawnWave(){
   const base = 6 + state.wave;
   const count = Math.round(base * state.density);
   for(let i=0;i<count;i++){
+    const roll = Math.random();
+    const type = roll>0.8?'tank':(roll>0.55?'fast':'normal');
+    const hpBase = 18 + state.wave*3;
+    const mult = type==='tank'?1.8:(type==='fast'?0.7:1);
+    const spd = type==='fast'?1.6:(type==='tank'?0.8:1);
     state.enemies.push({
-      t: -i*25, seg:0, speed:(1 + state.wave*0.05) * state.speed,
-      hp: (20 + state.wave*3) * (state.difficulty==='hard'?1.3:state.difficulty==='normal'?1.1:1),
-      maxHp: (20 + state.wave*3) * (state.difficulty==='hard'?1.3:state.difficulty==='normal'?1.1:1),
-      x:0, y:0
+      t: -i*24, seg:0, speed:(spd + state.wave*0.03) * state.speed,
+      hp: hpBase*mult, maxHp: hpBase*mult,
+      x:0, y:0, type
     });
   }
+  beep(220,0.08,'square',0.06);
 }
 
 function updateTowers(){
   state.towers.forEach(t=>{
     t.cooldown = (t.cooldown||0) - 1*state.speed;
     if(t.cooldown>0) return;
-    // find target in range
     const tx = (t.x+0.5)*grid.size, ty=(t.y+0.5)*grid.size;
     const range = ranges[t.type]*grid.size;
     let target = null;
@@ -133,6 +156,7 @@ function updateTowers(){
     state.bullets.push({
       x:tx, y:ty, target, speed:4*state.speed, dmg:damages[t.type], type:t.type
     });
+    beep(520,0.03,'sine',0.04);
   });
 }
 
@@ -150,6 +174,7 @@ function updateBullets(){
           if(Math.hypot(e.x-b.target.x, e.y-b.target.y) < grid.size*0.6) e.hp -= b.dmg*0.6;
         });
       }
+      beep(320,0.05,'triangle',0.05);
       b.dead=true; return;
     }
     b.x += (dx/dist)*b.speed; b.y += (dy/dist)*b.speed;
@@ -164,6 +189,7 @@ function updateEnemies(){
     const a = path[e.seg]; const b = path[e.seg+1];
     if(!b){
       state.hp -= 1; hpEl.textContent=state.hp;
+      beep(140,0.1,'square',0.08);
       e.dead = true; return;
     }
     const ax = (a.x+0.5)*grid.size, ay=(a.y+0.5)*grid.size;
@@ -174,7 +200,7 @@ function updateEnemies(){
     const t = e.progress/dist;
     e.x = ax + dx*t; e.y = ay + dy*t;
     if(t>=1){ e.seg++; e.progress=0; }
-    if(e.hp<=0){ e.dead=true; state.gold += 5; goldEl.textContent=state.gold; }
+    if(e.hp<=0){ e.dead=true; state.gold += 6; goldEl.textContent=state.gold; beep(260,0.04,'sine',0.05); }
   });
   state.enemies = state.enemies.filter(e=>!e.dead);
 }
@@ -206,7 +232,7 @@ canvas.addEventListener('click',(ev)=>{
   if(state.gold < cost) return;
   state.gold -= cost; goldEl.textContent=state.gold;
   const t={x:gx,y:gy,type:state.selectedType,level:1};
-  state.towers.push(t); selectTower(t);
+  state.towers.push(t); selectTower(t); beep(480,0.06,'square',0.05);
 });
 
 upgradeBtn.addEventListener('click',()=>{
@@ -214,20 +240,24 @@ upgradeBtn.addEventListener('click',()=>{
   const price = 30 + t.level*10;
   if(state.gold < price) return;
   state.gold -= price; goldEl.textContent=state.gold;
-  t.level += 1; damages[t.type] += 2; ranges[t.type] += 0.1; fireRates[t.type] = Math.max(10, fireRates[t.type]-2);
-  selectTower(t);
+  t.level += 1; damages[t.type] += 2; ranges[t.type] += 0.12; fireRates[t.type] = Math.max(10, fireRates[t.type]-2);
+  selectTower(t); beep(620,0.06,'sawtooth',0.05);
 });
 
 sellBtn.addEventListener('click',()=>{
   const t = state.selectedTower; if(!t) return;
   state.gold += 10 + t.level*5; goldEl.textContent=state.gold;
   state.towers = state.towers.filter(x=>x!==t);
-  selectTower(null);
+  selectTower(null); beep(240,0.06,'triangle',0.05);
 });
 
 startBtn.addEventListener('click',()=>{
   if(!state.running){ state.running=true; spawnWave(); startBtn.textContent='Волна+'; }
   else spawnWave();
+});
+
+soundBtn.addEventListener('click',()=>{
+  state.sound = !state.sound; soundBtn.textContent = state.sound?'🔊':'🔇';
 });
 
 [...document.querySelectorAll('.tower')].forEach(btn=>{
