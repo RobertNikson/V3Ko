@@ -55,10 +55,14 @@ function cellToPx(c){ return {x:c.x*grid.size, y:c.y*grid.size}; }
 
 // --- Sound (WebAudio) ---
 let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}
 function beep(freq=440, dur=0.08, type='sine', vol=0.05){
   if(!state.sound) return;
   try{
-    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    ensureAudio();
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.type = type; o.frequency.value = freq;
@@ -265,9 +269,10 @@ soundBtn.addEventListener('click',()=>{
   beep(520,0.03,'sine',0.04);
 });
 
-// click sound for buttons
+// unlock audio on first gesture + click sound
+document.addEventListener('pointerdown', ()=>ensureAudio(), {once:true});
 [...document.querySelectorAll('button')].forEach(b=>{
-  b.addEventListener('click',()=>beep(740,0.02,'triangle',0.03));
+  b.addEventListener('pointerdown',()=>beep(740,0.02,'triangle',0.04));
 });
 
 [...document.querySelectorAll('.tower')].forEach(btn=>{
