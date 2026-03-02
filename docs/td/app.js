@@ -13,6 +13,10 @@ const soundBtn = document.getElementById('soundBtn');
 
 const menu = document.getElementById('menu');
 const settings = document.getElementById('settings');
+
+// ensure menu first
+menu.classList.remove('hidden');
+settings.classList.add('hidden');
 const applyBtn = document.getElementById('applyBtn');
 const settingsBtn = document.getElementById('settingsBtn');
 const backBtn = document.getElementById('backBtn');
@@ -258,6 +262,12 @@ startBtn.addEventListener('click',()=>{
 
 soundBtn.addEventListener('click',()=>{
   state.sound = !state.sound; soundBtn.textContent = state.sound?'🔊':'🔇';
+  beep(520,0.03,'sine',0.04);
+});
+
+// click sound for buttons
+[...document.querySelectorAll('button')].forEach(b=>{
+  b.addEventListener('click',()=>beep(740,0.02,'triangle',0.03));
 });
 
 [...document.querySelectorAll('.tower')].forEach(btn=>{
