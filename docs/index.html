@@ -3,116 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>V3Ko Shop</title>
+  <title>V3Ko News</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="logo">V3Ko</div>
-      <nav class="topnav">
-        <a class="active" href="#">Магазин</a>
-        <a href="#">Категории</a>
-        <a href="#">Профиль</a>
-      </nav>
-      <div class="cart-mini">Корзина · 2</div>
+      <div class="logo">V3Ko News</div>
+      <div class="actions">
+        <button id="refreshBtn" class="ghost">Обновить</button>
+      </div>
     </header>
 
     <section class="hero">
-      <div>
-        <h1>Мини‑витрина в Telegram</h1>
-        <p>Чистый дизайн, быстрый каталог, аккуратное оформление заказа.</p>
-        <button>Смотреть каталог</button>
-      </div>
-      <div class="hero-card">
-        <div class="badge">New</div>
-        <h3>Smart‑лампа V3</h3>
-        <p class="price">2 990 ₽</p>
-        <span class="muted">Умный дом · LED · Wi‑Fi</span>
-      </div>
+      <h1>Глобальная лента событий</h1>
+      <p>Новости, конфликты, экономика, технологии и катастрофы — всё в одном месте.</p>
     </section>
 
-    <div class="filters">
-      <input placeholder="Поиск" />
-      <select><option>Все категории</option><option>Умный дом</option><option>Гаджеты</option></select>
-      <select><option>Сначала новые</option><option>Сначала дешёвые</option><option>Сначала дорогие</option></select>
-    </div>
+    <nav class="tabs" id="tabs"></nav>
 
-    <section class="grid">
-      <article class="card">
-        <img src="https://picsum.photos/seed/lamp/520/360" alt="" />
-        <div class="card-body">
-          <h3>Smart‑лампа V3</h3>
-          <p class="muted">Умный дом · LED · Wi‑Fi</p>
-          <div class="row">
-            <span class="price">2 990 ₽</span>
-            <button class="ghost">В корзину</button>
-          </div>
-        </div>
-      </article>
-      <article class="card">
-        <img src="https://picsum.photos/seed/alarm/520/360" alt="" />
-        <div class="card-body">
-          <h3>AI‑будильник Nova</h3>
-          <p class="muted">Сон · Режимы · Умный звук</p>
-          <div class="row">
-            <span class="price">4 490 ₽</span>
-            <button class="ghost">В корзину</button>
-          </div>
-        </div>
-      </article>
-      <article class="card">
-        <img src="https://picsum.photos/seed/case/520/360" alt="" />
-        <div class="card-body">
-          <h3>Кейс‑зарядка Pulse</h3>
-          <p class="muted">Быстрая зарядка · USB‑C</p>
-          <div class="row">
-            <span class="price">1 290 ₽</span>
-            <button class="ghost">В корзину</button>
-          </div>
-        </div>
-      </article>
-    </section>
+    <main>
+      <div id="status" class="status">Загружаю новости…</div>
+      <section id="grid" class="grid"></section>
+    </main>
 
-    <section class="checkout">
-      <h2>Оформление</h2>
-      <div class="form">
-        <input placeholder="Имя" />
-        <input placeholder="Телефон" />
-        <input placeholder="Email" />
-        <input placeholder="Адрес доставки" />
-        <select>
-          <option>СДЭК — самовывоз</option>
-          <option>СДЭК — курьер</option>
-        </select>
-        <textarea placeholder="Комментарий"></textarea>
-        <button>Подтвердить заказ</button>
-      </div>
-    </section>
-
-    <section class="admin">
-      <h2>Админ‑панель</h2>
-      <div class="admin-grid">
-        <div class="panel">
-          <h3>Товары</h3>
-          <p class="muted">Добавление, цена, скрытие</p>
-          <button class="ghost">Управлять</button>
-        </div>
-        <div class="panel">
-          <h3>Заказы</h3>
-          <p class="muted">Статусы, доставка, экспорт</p>
-          <button class="ghost">Открыть</button>
-        </div>
-        <div class="panel">
-          <h3>Уведомления</h3>
-          <p class="muted">Telegram · Email · SMS</p>
-          <button class="ghost">Настроить</button>
-        </div>
-      </div>
-    </section>
-
-    <footer>V3Ko · MVP</footer>
+    <footer>Источник: GDELT · обновление по запросу</footer>
   </div>
   <script src="app.js"></script>
 </body>
