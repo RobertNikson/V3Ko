@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Shop MVP</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">🛒</div>
+        <div>
+          <h1>V3Ko Shop</h1>
+          <p class="subtitle">Мини‑витрина в Telegram</p>
+        </div>
+      </div>
+      <div class="search">
+        <input placeholder="Поиск товара…" />
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="catalog">Каталог</button>
+      <button class="tab" data-tab="cart">Корзина</button>
+      <button class="tab" data-tab="checkout">Оформление</button>
+      <button class="tab" data-tab="admin">Админ</button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="catalog">
+        <h2>Категории</h2>
+        <div class="chips">
+          <span class="chip active">Все</span>
+          <span class="chip">Умный дом</span>
+          <span class="chip">Гаджеты</span>
+          <span class="chip">Аксессуары</span>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <img src="https://picsum.photos/seed/lamp/400/260" alt="" />
+            <h3>Smart‑лампа V3</h3>
+            <p class="price">2 990 ₽</p>
+            <button>В корзину</button>
+          </div>
+          <div class="card">
+            <img src="https://picsum.photos/seed/alarm/400/260" alt="" />
+            <h3>AI‑будильник Nova</h3>
+            <p class="price">4 490 ₽</p>
+            <button>В корзину</button>
+          </div>
+          <div class="card">
+            <img src="https://picsum.photos/seed/case/400/260" alt="" />
+            <h3>Кейс‑зарядка Pulse</h3>
+            <p class="price">1 290 ₽</p>
+            <button>В корзину</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="cart">
+        <h2>Корзина</h2>
+        <div class="list">
+          <div class="row">
+            <div>Smart‑лампа V3</div>
+            <div>1 × 2 990 ₽</div>
+          </div>
+          <div class="row">
+            <div>Кейс‑зарядка Pulse</div>
+            <div>2 × 1 290 ₽</div>
+          </div>
+        </div>
+        <div class="total">Итого: 5 570 ₽</div>
+        <button>Оформить заказ</button>
+      </section>
+
+      <section class="panel" id="checkout">
+        <h2>Оформление</h2>
+        <div class="form">
+          <input placeholder="Имя" />
+          <input placeholder="Телефон" />
+          <input placeholder="Email" />
+          <input placeholder="Адрес доставки" />
+          <select>
+            <option>СДЭК — самовывоз</option>
+            <option>СДЭК — курьер</option>
+          </select>
+          <textarea placeholder="Комментарий"></textarea>
+          <button>Подтвердить заказ</button>
+        </div>
+      </section>
+
+      <section class="panel" id="admin">
+        <h2>Админ‑панель</h2>
+        <div class="admin">
+          <div class="admin-card">
+            <h3>Товары</h3>
+            <p>Добавить / редактировать / скрыть</p>
+            <button>Управлять</button>
+          </div>
+          <div class="admin-card">
+            <h3>Заказы</h3>
+            <p>Статусы, доставка, экспорт</p>
+            <button>Открыть</button>
+          </div>
+          <div class="admin-card">
+            <h3>Уведомления</h3>
+            <p>Telegram / Email / SMS</p>
+            <button>Настроить</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span class="muted">MVP · v0.1</span>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+  </html>
