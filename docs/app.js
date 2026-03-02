@@ -9,6 +9,7 @@ const CATS = [
   { key:'war', label:'Конфликты', query:'(war OR conflict OR strike OR missile OR drone OR ceasefire OR обстрел OR удар OR ракета OR дрон)' },
   { key:'disasters', label:'Катастрофы', query:'(earthquake OR wildfire OR flood OR hurricane OR tornado OR heatwave OR землетрясение OR пожар OR наводнение OR ураган)' },
 ];
+
 const timespans = ['1d','3d','7d','14d','30d'];
 const tabsEl = document.getElementById('tabs');
 const gridEl = document.getElementById('grid');
@@ -31,16 +32,27 @@ function jina(url){
   return 'https://r.jina.ai/http://' + url.replace('https://','').replace('http://','');
 }
 
+async function fetchWithTimeout(url, ms=8000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  try{
+    const res = await fetch(url, {signal: ctrl.signal});
+    const text = await res.text();
+    return text;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 async function fetchGDELT(query){
   for(const span of timespans){
     const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&timespan=${span}&mode=artlist&maxrecords=50&format=json&sort=date`;
     try{
-      const res = await fetch(jina(url));
-      let text = await res.text();
+      let text = await fetchWithTimeout(jina(url));
       if(text.includes('Markdown Content:')) text = text.split('Markdown Content:')[1].trim();
       const data = JSON.parse(text);
       if(data.articles && data.articles.length) return data.articles;
-    }catch(e){continue;}
+    }catch(e){/* continue */}
   }
   return [];
 }
@@ -72,7 +84,8 @@ async function load(){
   gridEl.innerHTML='';
   const arts = await fetchGDELT(active.query);
   if(!arts.length){
-    statusEl.textContent='Нет данных. Попробуйте позже.'; return;
+    statusEl.textContent='Нет данных или таймаут. Нажми «Обновить».';
+    return;
   }
   statusEl.textContent=`Найдено: ${arts.length}`;
   const seen=new Set();
