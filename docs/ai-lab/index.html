@@ -3,55 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI‑Lab</title>
+  <title>Brain Core</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="logo">AI‑Lab</div>
-      <div class="sub">ProtoMind Console</div>
+      <div class="logo">Brain Core</div>
+      <div class="sub">TON · sandbox token</div>
     </header>
 
-    <section class="resources">
-      <div class="res"><span>Data</span><b id="data">120</b></div>
-      <div class="res"><span>Compute</span><b id="compute">80</b></div>
-      <div class="res"><span>Energy</span><b id="energy">60</b></div>
-      <div class="res"><span>Credits</span><b id="credits">140</b></div>
+    <section class="stats">
+      <div class="res"><span>Tokens</span><b id="tokens">0</b></div>
+      <div class="res"><span>Brain Lv</span><b id="brainLvl">1</b></div>
+      <div class="res"><span>Power</span><b id="power">1</b></div>
     </section>
 
-    <section class="lab">
-      <div class="card">
-        <h3>NLP Core</h3>
-        <p>Чат‑модели, диалоги, контекст.</p>
-        <button data-module="nlp">Апгрейд</button>
-      </div>
-      <div class="card">
-        <h3>Vision Core</h3>
-        <p>Компьютерное зрение и анализ.</p>
-        <button data-module="vision">Апгрейд</button>
-      </div>
-      <div class="card">
-        <h3>Agent Core</h3>
-        <p>Автономные задачи и решения.</p>
-        <button data-module="agent">Апгрейд</button>
-      </div>
-      <div class="card">
-        <h3>Memory Core</h3>
-        <p>Долгосрочная память и контекст.</p>
-        <button data-module="memory">Апгрейд</button>
+    <section class="center">
+      <div id="brain" class="brain"></div>
+      <div class="hint">Тапай по мозгу, чтобы получать токены</div>
+    </section>
+
+    <section class="skills">
+      <h3>Прокачка скиллов</h3>
+      <div class="grid">
+        <button class="skill" data-skill="logic">Logic +1<br><small>50 токенов</small></button>
+        <button class="skill" data-skill="memory">Memory +1<br><small>60 токенов</small></button>
+        <button class="skill" data-skill="vision">Vision +1<br><small>70 токенов</small></button>
+        <button class="skill" data-skill="agents">Agents +1<br><small>80 токенов</small></button>
       </div>
     </section>
 
-    <section class="actions">
-      <button id="runBtn" class="primary">Запустить эксперимент</button>
-      <div class="hint">Эксперимент тратит ресурсы и выдаёт модель‑карту.</div>
-    </section>
-
-    <section class="models">
-      <h3>Последние модели</h3>
-      <div id="modelList" class="model-list"></div>
+    <section class="blockchain">
+      <h3>Blockchain (TON)</h3>
+      <p>Связь с блокчейном и шифрование — режим заглушки до листинга.</p>
+      <button id="linkBtn" class="ghost">Подключить TON</button>
     </section>
   </div>
 

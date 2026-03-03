@@ -1,19 +1,18 @@
-:root{--bg:#0f1116;--card:#161a22;--text:#e7edf2;--muted:#9aa3ad;--accent:#6cf18a;--border:#2a2f3a}
+:root{--bg:#0d0f14;--card:#161a22;--text:#e7edf2;--muted:#9aa3ad;--accent:#6cf18a;--border:#2a2f3a}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
 .app{max-width:980px;margin:0 auto;padding:18px}
 .topbar{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}
 .logo{font-weight:700;font-size:20px}
 .sub{color:var(--muted);font-size:12px}
-.resources{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
 .res{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;justify-content:space-between}
-.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
-.card p{color:var(--muted);font-size:13px}
+.center{display:flex;flex-direction:column;align-items:center;gap:8px;margin:20px 0}
+.brain{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #7ff0ff, #5a6cff 45%, #3b2f7a 75%);box-shadow:0 0 30px rgba(108,241,138,.25);cursor:pointer;position:relative}
+.brain::after{content:"";position:absolute;inset:18px;border-radius:50%;border:2px dashed rgba(255,255,255,.15)}
+.hint{color:var(--muted);font-size:12px}
+.skills{margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
 button{background:#0f1218;color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:10px;cursor:pointer}
-.primary{background:var(--accent);color:#0b0d10;border:none;font-weight:700}
-.actions{margin:16px 0}
-.hint{color:var(--muted);font-size:12px;margin-top:6px}
-.models h3{margin:10px 0}
-.model-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-.model{background:#0f1218;border:1px solid var(--border);border-radius:10px;padding:10px}
-.tag{display:inline-block;font-size:11px;color:#0b0d10;background:var(--accent);padding:2px 6px;border-radius:999px;margin-bottom:6px}
+.skill{background:var(--card)}
+.blockchain{margin-top:16px;background:#0f1218;border:1px solid var(--border);border-radius:12px;padding:12px}
+.ghost{background:transparent;border:1px solid var(--border)}
