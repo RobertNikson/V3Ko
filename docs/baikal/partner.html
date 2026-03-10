@@ -45,7 +45,22 @@
     </section>
 
     <section class="card">
-      <h3>3) Массовый импорт CSV</h3>
+      <h3>3) Партнёрский календарь (доступность + цена)</h3>
+      <button id="loadListings">Загрузить мои карточки</button>
+      <select id="listingSelect"></select>
+      <input id="newPriceLabel" placeholder="Новая цена, напр. 7900 ₽ / ночь" />
+      <button id="updatePrice">Обновить цену</button>
+
+      <h4>Слоты доступности</h4>
+      <select id="unitSelect"></select>
+      <input id="slotStart" type="datetime-local" />
+      <input id="slotEnd" type="datetime-local" />
+      <select id="slotAvailable"><option value="true">Доступно</option><option value="false">Недоступно</option></select>
+      <button id="saveSlot">Сохранить слот</button>
+    </section>
+
+    <section class="card">
+      <h3>4) Массовый импорт CSV</h3>
       <p class="muted">Формат: <code>category,title,description,price,image_url</code></p>
       <input id="csvFile" type="file" accept=".csv,text/csv" />
       <textarea id="csvData" rows="8" placeholder="category,title,description,price,image_url&#10;equipment,Квадро тур,2 часа по берегу,4500 ₽,https://...&#10;stay,Домик у берега,уютный домик,7900 ₽ / ночь,https://..."></textarea>
@@ -95,6 +110,52 @@
         units: [{ name: 'Юнит #1', capacity: 2 }]
       };
       const r = await fetch(`${API}/partners/${partnerId}/listings`, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) });
+      const j = await r.json();
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+
+    const listingSelect = document.getElementById('listingSelect');
+    const unitSelect = document.getElementById('unitSelect');
+
+    async function loadPartnerListings(){
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const rows = await (await fetch(`${API}/partners/${partnerId}/listings`)).json();
+      listingSelect.innerHTML = rows.map(r=>`<option value="${r.id}">${r.title} (${r.category})</option>`).join('');
+      if (rows.length) await loadUnits(rows[0].id);
+    }
+
+    async function loadUnits(listingId){
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const rows = await (await fetch(`${API}/partners/${partnerId}/listings/${listingId}/units`)).json();
+      unitSelect.innerHTML = rows.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+    }
+
+    listingSelect.addEventListener('change', ()=> loadUnits(listingSelect.value));
+
+    document.getElementById('loadListings').onclick = loadPartnerListings;
+
+    document.getElementById('updatePrice').onclick = async () => {
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const listingId = listingSelect.value;
+      const priceLabel = document.getElementById('newPriceLabel').value.trim();
+      const r = await fetch(`${API}/partners/${partnerId}/listings/${listingId}/price`, {
+        method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ priceLabel })
+      });
+      const j = await r.json();
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+
+    document.getElementById('saveSlot').onclick = async () => {
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const body = {
+        unitId: unitSelect.value,
+        startsAt: new Date(document.getElementById('slotStart').value).toISOString(),
+        endsAt: new Date(document.getElementById('slotEnd').value).toISOString(),
+        isAvailable: document.getElementById('slotAvailable').value === 'true'
+      };
+      const r = await fetch(`${API}/partners/${partnerId}/availability/bulk`, {
+        method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body)
+      });
       const j = await r.json();
       out.textContent = JSON.stringify(j, null, 2);
     };
