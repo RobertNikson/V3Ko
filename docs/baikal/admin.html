@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Moderation</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="app"><h2>Модерация карточек</h2><button id="load">Обновить</button><div id="list"></div></div>
+<body><div class="app"><h2>Модерация карточек</h2><button id="load">Обновить</button><div id="list"></div>
+
+<h2 style="margin-top:20px">Аналитика воронки (7 дней)</h2>
+<div id="funnel" class="item">Загрузка...</div>
+</div>
 <script>
 const API='https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
 const list=document.getElementById('list');
@@ -31,8 +35,17 @@ async function load(){
     const rej=document.createElement('button'); rej.textContent='Reject'; rej.className='ghost'; rej.onclick=()=>mod(r.id,'rejected');
     d.appendChild(a); d.appendChild(rej); list.appendChild(d);
   });
+
+  const f = await api('/admin/analytics/funnel?days=7');
+  document.getElementById('funnel').innerHTML = `
+    Просмотры: <b>${f.counts.listing_view}</b><br>
+    Клики брони: <b>${f.counts.book_click}</b> (${f.conversion.click_from_view}%)<br>
+    Hold: <b>${f.counts.booking_hold}</b> (${f.conversion.hold_from_click}%)<br>
+    Confirm: <b>${f.counts.booking_confirm}</b> (${f.conversion.confirm_from_hold}%)
+  `;
  }catch(e){
   list.innerHTML = `<div class='item'>Ошибка: ${e.message}</div>`;
+  document.getElementById('funnel').innerHTML = `Ошибка: ${e.message}`;
  }
 }
 

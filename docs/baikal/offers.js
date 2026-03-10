@@ -23,6 +23,19 @@ const userId = session?.user?.id || null;
 titleLoc.textContent = locName;
 subLoc.textContent = 'Подбираем предложения…';
 
+function track(eventType, extra = {}) {
+  return fetch(`${API}/analytics/event`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      eventType,
+      userId: userId || undefined,
+      locationId: locationId || undefined,
+      ...extra
+    })
+  }).catch(() => {});
+}
+
 async function loadReviewSummary(listingId) {
   try {
     const r = await fetch(`${API}/listings/${listingId}/reviews`);
@@ -84,7 +97,11 @@ function card(item) {
       </div>
     </div>
   `;
+  track('listing_view', { listingId: item.id, payload: { category: item.category } });
+
   div.querySelector('.book-btn').onclick = async () => {
+    track('book_click', { listingId: item.id, payload: { category: item.category } });
+
     const { s, e } = currentRange();
     if (!s || !e) return alert('Сначала выбери дату и время начала/конца');
     if (new Date(e) <= new Date(s)) return alert('Конец должен быть позже начала');
@@ -103,9 +120,11 @@ function card(item) {
     });
     const h = await hold.json();
     if (!hold.ok) return alert(h.error || 'Ошибка hold');
+    track('booking_hold', { listingId: item.id, payload: { bookingId: h.id } });
 
     await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
     await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
+    track('booking_confirm', { listingId: item.id, payload: { bookingId: h.id } });
     alert('Бронь подтверждена ✅');
   };
   div.querySelector('.fav-btn').onclick = () => addFavorite(item.id);
