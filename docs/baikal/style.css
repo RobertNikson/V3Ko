@@ -17,5 +17,25 @@ button.ghost{background:transparent}
 .item small{color:var(--muted)}
 .book-btn{margin-top:10px;background:var(--ok);border-color:#16a34a;color:#06250f}
 .link{display:inline-block;color:#8ec5ff;text-decoration:none;margin-top:8px}
+
+.hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c}
+.baikal-image{display:block;width:100%;height:auto;min-height:260px;object-fit:cover;filter:saturate(1.05)}
+.hotspot{position:absolute;transform:translate(-50%,-50%);background:rgba(11,18,32,.82);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
+.hotspot:hover{background:#16315e}
+.hs-listvyanka{left:76%;top:82%}
+.hs-olkhon{left:53%;top:35%}
+.hs-mrs{left:45%;top:50%}
+.hs-malomore{left:49%;top:28%}
+.hs-peschanaya{left:63%;top:70%}
+
+.offer-card{display:grid;grid-template-columns:130px 1fr;gap:10px;border:1px solid #304572;border-radius:12px;overflow:hidden;background:#0e1930;margin:10px 0}
+.offer-image{width:130px;height:110px;object-fit:cover}
+.offer-body{padding:10px}
+.offer-body h4{margin:0 0 6px}
+.offer-body p{margin:0 0 8px;color:var(--muted);font-size:13px}
+.offer-meta{font-size:13px;font-weight:700;margin-bottom:8px}
+
+textarea,input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #304572;background:#0f1728;color:var(--text);margin:6px 0}
+
 .real-map{width:100%;height:320px;border:1px solid #2a3d68;border-radius:12px;overflow:hidden}
 .leaflet-container{background:#0b162d}

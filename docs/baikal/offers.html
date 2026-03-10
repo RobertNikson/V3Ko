@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baikal Booking · Предложения</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar row">
+      <div>
+        <h1 id="titleLoc">Предложения</h1>
+        <p id="subLoc">Загрузка…</p>
+      </div>
+      <a class="link" href="./index.html">← К карте</a>
+    </header>
+
+    <section class="card">
+      <label>Категория</label>
+      <div class="cats">
+        <button class="cat-btn active" data-cat="equipment">Техника</button>
+        <button class="cat-btn" data-cat="stay">Места</button>
+        <button class="cat-btn" data-cat="activity">Развлечения</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h3>Каталог</h3>
+        <button id="refresh" class="ghost">Обновить</button>
+      </div>
+      <div id="list"></div>
+    </section>
+  </div>
+  <script src="offers.js?v=2"></script>
+</body>
+</html>

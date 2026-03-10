@@ -1,1 +1,88 @@
-<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Partner</title><link rel="stylesheet" href="style.css"></head><body><div class="app"><h2>Кабинет партнёра (демо)</h2><div class="card"><p>Подключение ИП/ООО, интеграции API/CSV/iCal.</p><p>Backend уже готов на сервере. Следующий шаг — связка с этим интерфейсом и Telegram auth.</p></div></div></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baikal Partner Cabinet</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar row">
+      <div>
+        <h1>Кабинет партнёра</h1>
+        <p>Добавление услуг, фото и описания</p>
+      </div>
+      <a class="link" href="./index.html">← Назад</a>
+    </header>
+
+    <section class="card">
+      <h3>1) Регистрация партнёра (ИП/ООО)</h3>
+      <input id="pName" placeholder="Название партнёра" />
+      <select id="pType"><option value="ip">ИП</option><option value="ooo">ООО</option><option value="self_employed">Самозанятый</option></select>
+      <input id="pInn" placeholder="ИНН" />
+      <input id="pLegal" placeholder="Юр. название" />
+      <button id="registerPartner">Зарегистрировать</button>
+      <p>Partner ID: <code id="partnerIdOut">—</code></p>
+    </section>
+
+    <section class="card">
+      <h3>2) Добавить услугу/товар</h3>
+      <input id="partnerId" placeholder="Partner ID" />
+      <input id="locationName" placeholder="Локация (напр. Листвянка)" />
+      <select id="cat"><option value="equipment">Техника</option><option value="stay">Места</option><option value="activity">Развлечения</option></select>
+      <input id="title" placeholder="Название услуги" />
+      <textarea id="desc" placeholder="Описание услуги"></textarea>
+      <input id="price" placeholder="Цена (напр. 4500 ₽ / 2 часа)" />
+      <input id="image" placeholder="URL картинки" />
+      <button id="addListing">Добавить предложение</button>
+      <pre id="out"></pre>
+    </section>
+  </div>
+
+  <script>
+    const API = 'https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
+    const out = document.getElementById('out');
+
+    async function getLocationIdByName(name){
+      const roots = await (await fetch(`${API}/locations`)).json();
+      const kids = await (await fetch(`${API}/locations?parentId=${roots[0].id}`)).json();
+      return kids.find(x=>x.name.toLowerCase()===name.toLowerCase())?.id || kids[0]?.id;
+    }
+
+    document.getElementById('registerPartner').onclick = async () => {
+      const body = {
+        name: document.getElementById('pName').value,
+        partnerType: document.getElementById('pType').value,
+        legal: { inn: document.getElementById('pInn').value, legalName: document.getElementById('pLegal').value }
+      };
+      const r = await fetch(`${API}/partners/register`, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) });
+      const j = await r.json();
+      document.getElementById('partnerIdOut').textContent = j.id || 'ошибка';
+      document.getElementById('partnerId').value = j.id || '';
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+
+    document.getElementById('addListing').onclick = async () => {
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const locationName = document.getElementById('locationName').value.trim();
+      const locationId = await getLocationIdByName(locationName);
+
+      const body = {
+        locationId,
+        category: document.getElementById('cat').value,
+        title: document.getElementById('title').value,
+        description: document.getElementById('desc').value,
+        metadata: {
+          price_label: document.getElementById('price').value,
+          image_url: document.getElementById('image').value
+        },
+        units: [{ name: 'Юнит #1', capacity: 2 }]
+      };
+      const r = await fetch(`${API}/partners/${partnerId}/listings`, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) });
+      const j = await r.json();
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+  </script>
+</body>
+</html>

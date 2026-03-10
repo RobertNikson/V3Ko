@@ -5,54 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Booking</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div>
-        <h1>Baikal Booking</h1>
-        <p>Бронь техники, мест отдыха и развлечений</p>
-      </div>
+      <h1>Baikal Booking</h1>
+      <p>Выберите локацию на Байкале</p>
     </header>
 
-    <section class="card map-card">
-      <div class="row">
-        <label>0) Карта Байкала (тайлы + маркеры + зум)</label>
-      </div>
-      <div id="map" class="real-map" aria-label="Карта Байкала"></div>
-    </section>
+    <section class="hero-map">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lake_Baikal_landsat.jpg/1280px-Lake_Baikal_landsat.jpg" alt="Байкал" class="baikal-image" />
 
-    <section class="card">
-      <label>1) Локация</label>
-      <select id="location"></select>
-    </section>
-
-    <section class="card">
-      <label>2) Категория</label>
-      <div class="cats">
-        <button class="cat-btn" data-cat="equipment">Техника</button>
-        <button class="cat-btn" data-cat="stay">Места</button>
-        <button class="cat-btn" data-cat="activity">Развлечения</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="row">
-        <h3>Предложения</h3>
-        <button id="refresh" class="ghost">Обновить</button>
-      </div>
-      <div id="list" class="list"></div>
+      <a class="hotspot hs-listvyanka" href="./offers.html?location=Листвянка">Листвянка</a>
+      <a class="hotspot hs-olkhon" href="./offers.html?location=Ольхон">Ольхон</a>
+      <a class="hotspot hs-mrs" href="./offers.html?location=МРС">МРС</a>
+      <a class="hotspot hs-malomore" href="./offers.html?location=Малое море">Малое море</a>
+      <a class="hotspot hs-peschanaya" href="./offers.html?location=Бухта Песчаная">Бухта Песчаная</a>
     </section>
 
     <section class="card">
       <h3>Для партнёров</h3>
-      <p>ИП/ООО могут подключить свои услуги и интеграции.</p>
-      <a class="link" href="https://robertnikson.github.io/V3Ko/baikal/partner.html">Открыть кабинет партнёра</a>
+      <p>Добавляйте услуги с фото и описанием.</p>
+      <a class="link" href="./partner.html">Открыть кабинет партнёра</a>
     </section>
   </div>
-  <script src="app.js?v=3"></script>
 </body>
 </html>
