@@ -36,7 +36,7 @@ const suggestions = [
   { k: ['как', 'заброни'], a: 'Нажми локацию на карте → откроется страница предложений → выбери карточку и нажми «Забронировать».' },
 ];
 
-function aiReply(text) {
+function aiReplyFallback(text) {
   const t = text.toLowerCase();
   for (const s of suggestions) if (s.k.some(x => t.includes(x))) return s.a;
   return 'Подскажу маршрут: выбери локацию на карте (Листвянка, Ольхон, МРС, Малое море, Бухта Песчаная), затем категорию и предложение.';
@@ -56,12 +56,25 @@ aiBtn.onclick = () => {
 };
 aiClose.onclick = () => aiPanel.classList.add('hidden');
 
-aiSend.onclick = () => {
+aiSend.onclick = async () => {
   const text = aiInput.value.trim();
   if (!text) return;
   addMsg('user', text);
   aiInput.value = '';
-  setTimeout(() => addMsg('bot', aiReply(text)), 200);
+
+  try {
+    const r = await fetch('https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api/ai/chat', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    });
+
+    if (!r.ok) throw new Error('ai unavailable');
+    const j = await r.json();
+    addMsg('bot', j.answer || 'Пустой ответ');
+  } catch {
+    addMsg('bot', aiReplyFallback(text));
+  }
 };
 
 aiInput.addEventListener('keydown', (e) => {
