@@ -8,6 +8,9 @@ const locName = params.get('location') || 'Листвянка';
 const titleLoc = document.getElementById('titleLoc');
 const subLoc = document.getElementById('subLoc');
 const listEl = document.getElementById('list');
+const startAtEl = document.getElementById('startAt');
+const endAtEl = document.getElementById('endAt');
+const slotStatusEl = document.getElementById('slotStatus');
 let selectedCat = 'equipment';
 let locationId = null;
 
@@ -25,6 +28,19 @@ async function loadReviewSummary(listingId) {
     const j = await r.json();
     return `${j?.avg?.avg_rating || '—'} ★ (${j?.avg?.total || 0})`;
   } catch { return '—'; }
+}
+
+function toIsoFromInput(v){
+  if(!v) return null;
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+function currentRange(){
+  const s = toIsoFromInput(startAtEl.value);
+  const e = toIsoFromInput(endAtEl.value);
+  return { s, e };
 }
 
 async function addFavorite(listingId) {
@@ -67,7 +83,30 @@ function card(item) {
       </div>
     </div>
   `;
-  div.querySelector('.book-btn').onclick = () => alert('Бронирование: следующий шаг (hold + оплата) уже подключается к API');
+  div.querySelector('.book-btn').onclick = async () => {
+    const { s, e } = currentRange();
+    if (!s || !e) return alert('Сначала выбери дату и время начала/конца');
+    if (new Date(e) <= new Date(s)) return alert('Конец должен быть позже начала');
+
+    const unit = item.units?.[0];
+    if (!unit) return alert('Нет доступного юнита');
+
+    const av = await fetch(`${API}/availability/query?unitId=${unit.id}&startsAt=${encodeURIComponent(s)}&endsAt=${encodeURIComponent(e)}`);
+    const avj = await av.json();
+    if (!avj.available) return alert('Этот слот уже занят, выбери другое время');
+
+    const priceNum = Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
+    const hold = await fetch(`${API}/bookings/hold`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ userId, listingId: item.id, unitId: unit.id, startsAt: s, endsAt: e, price: priceNum })
+    });
+    const h = await hold.json();
+    if (!hold.ok) return alert(h.error || 'Ошибка hold');
+
+    await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
+    await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
+    alert('Бронь подтверждена ✅');
+  };
   div.querySelector('.fav-btn').onclick = () => addFavorite(item.id);
   div.querySelector('.rev-btn').onclick = () => addQuickReview(item.id);
 
@@ -109,7 +148,20 @@ document.querySelectorAll('.cat-btn').forEach((b) => {
 
 document.getElementById('refresh').onclick = loadCatalog;
 
+function setDefaultRange(){
+  const now = new Date();
+  const start = new Date(now.getTime() + 60*60*1000);
+  const end = new Date(start.getTime() + 2*60*60*1000);
+  const fmt = (d)=> new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  startAtEl.value = fmt(start);
+  endAtEl.value = fmt(end);
+  slotStatusEl.textContent = 'Диапазон выбран: можно бронировать';
+}
+startAtEl?.addEventListener('change', ()=> slotStatusEl.textContent = 'Диапазон обновлён');
+endAtEl?.addEventListener('change', ()=> slotStatusEl.textContent = 'Диапазон обновлён');
+
 (async function init(){
+  setDefaultRange();
   try {
     locationId = await resolveLocationId();
     subLoc.textContent = userId ? 'Локация выбрана · пользователь авторизован' : 'Локация выбрана · войди для избранного и отзывов';

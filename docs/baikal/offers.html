@@ -31,6 +31,17 @@
         <h3>Каталог</h3>
         <button id="refresh" class="ghost">Обновить</button>
       </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>Начало</label>
+          <input id="startAt" type="datetime-local" />
+        </div>
+        <div style="flex:1">
+          <label>Конец</label>
+          <input id="endAt" type="datetime-local" />
+        </div>
+      </div>
+      <p class="muted" id="slotStatus">Выбери даты и время для брони</p>
       <div id="list"></div>
     </section>
   </div>
