@@ -14,6 +14,14 @@
       <p>Выберите локацию на Байкале</p>
     </header>
 
+    <section class="card">
+      <div class="row">
+        <button id="geoBtn">📍 Определить моё гео</button>
+        <button id="aiBtn" class="ghost">🤖 ИИ-помощник</button>
+      </div>
+      <p id="geoStatus" class="muted">Геолокация не определена</p>
+    </section>
+
     <section class="hero-map">
       <img src="./assets/baikal-map.jpg" alt="Карта Байкала" class="baikal-image" />
 
@@ -30,5 +38,16 @@
       <a class="link" href="./partner.html">Открыть кабинет партнёра</a>
     </section>
   </div>
+
+  <div id="aiPanel" class="ai-panel hidden">
+    <div class="ai-head">ИИ-помощник <button id="aiClose">✕</button></div>
+    <div id="aiMsgs" class="ai-msgs"></div>
+    <div class="ai-input-wrap">
+      <input id="aiInput" placeholder="Спросите, где лучше отдохнуть на Байкале..." />
+      <button id="aiSend">Отправить</button>
+    </div>
+  </div>
+
+  <script src="./index.js?v=1"></script>
 </body>
 </html>
