@@ -4,24 +4,41 @@
 
 <h2 style="margin-top:20px">Аналитика воронки (7 дней)</h2>
 <div id="funnel" class="item">Загрузка...</div>
+<div id="byLoc" class="item">Загрузка...</div>
+
+<h2 style="margin-top:20px">Пакеты</h2>
+<div class="item">
+  <input id="bundleLocationId" placeholder="locationId" />
+  <input id="bundleTitle" placeholder="Название пакета" />
+  <input id="bundleListingIds" placeholder="listingId,listingId,listingId" />
+  <button id="createBundle">Создать пакет</button>
+</div>
+<div id="bundles"></div>
 </div>
 <script>
 const API='https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
 const list=document.getElementById('list');
 let adminKey = localStorage.getItem('baikal_admin_key') || '';
-if(!adminKey){
-  adminKey = prompt('Введи admin key');
-  if(adminKey) localStorage.setItem('baikal_admin_key', adminKey);
-}
+if(!adminKey){ adminKey = prompt('Введи admin key'); if(adminKey) localStorage.setItem('baikal_admin_key', adminKey); }
 
 async function api(path, opts={}){
   const headers = Object.assign({'x-admin-key': adminKey}, opts.headers||{});
   const r = await fetch(`${API}${path}`, {...opts, headers});
-  if(!r.ok){
-    const t = await r.text();
-    throw new Error(`HTTP ${r.status}: ${t}`);
-  }
+  if(!r.ok){ throw new Error(`HTTP ${r.status}: ${await r.text()}`); }
   return r.json();
+}
+
+async function loadBundles(){
+  const rows = await api('/admin/bundles');
+  const el = document.getElementById('bundles');
+  el.innerHTML='';
+  rows.forEach(b=>{
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML = `<b>${b.title}</b><br><small>${b.location_name || ''}</small>`;
+    const del=document.createElement('button'); del.className='ghost'; del.textContent='Удалить';
+    del.onclick=async()=>{ await api(`/admin/bundles/${b.id}`, {method:'DELETE'}); loadBundles(); };
+    d.appendChild(del); el.appendChild(d);
+  });
 }
 
 async function load(){
@@ -37,15 +54,14 @@ async function load(){
   });
 
   const f = await api('/admin/analytics/funnel?days=7');
-  document.getElementById('funnel').innerHTML = `
-    Просмотры: <b>${f.counts.listing_view}</b><br>
-    Клики брони: <b>${f.counts.book_click}</b> (${f.conversion.click_from_view}%)<br>
-    Hold: <b>${f.counts.booking_hold}</b> (${f.conversion.hold_from_click}%)<br>
-    Confirm: <b>${f.counts.booking_confirm}</b> (${f.conversion.confirm_from_hold}%)
-  `;
+  document.getElementById('funnel').innerHTML = `Просмотры: <b>${f.counts.listing_view}</b><br>Клики: <b>${f.counts.book_click}</b> (${f.conversion.click_from_view}%)<br>Hold: <b>${f.counts.booking_hold}</b> (${f.conversion.hold_from_click}%)<br>Confirm: <b>${f.counts.booking_confirm}</b> (${f.conversion.confirm_from_hold}%)`;
+
+  const loc = await api('/admin/analytics/by-location?days=7');
+  document.getElementById('byLoc').innerHTML = loc.map(x=>`• ${x.location}: <b>${x.events}</b>`).join('<br>') || 'Нет данных';
+
+  await loadBundles();
  }catch(e){
   list.innerHTML = `<div class='item'>Ошибка: ${e.message}</div>`;
-  document.getElementById('funnel').innerHTML = `Ошибка: ${e.message}`;
  }
 }
 
@@ -53,5 +69,14 @@ async function mod(id,status){
  await api(`/admin/listings/${id}/moderate`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status})});
  load();
 }
+
+document.getElementById('createBundle').onclick = async () => {
+  const locationId = document.getElementById('bundleLocationId').value.trim();
+  const title = document.getElementById('bundleTitle').value.trim();
+  const listingIds = document.getElementById('bundleListingIds').value.split(',').map(s=>s.trim()).filter(Boolean);
+  await api('/admin/bundles', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({locationId, title, listingIds})});
+  await loadBundles();
+};
+
 document.getElementById('load').onclick=load; load();
 </script></body></html>
