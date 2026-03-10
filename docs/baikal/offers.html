@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Booking · Предложения</title>
-  <link rel="stylesheet" href="style.css?v=20260310-8" />
+  <link rel="stylesheet" href="style.css?v=20260310-9" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -56,6 +56,32 @@
         <h3>Каталог</h3>
         <button id="refresh" class="ghost">Обновить</button>
       </div>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="ghost quick-date" data-kind="today">Сегодня</button>
+        <button class="ghost quick-date" data-kind="tomorrow">Завтра</button>
+        <button class="ghost quick-date" data-kind="weekend">Выходные</button>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>Дата</label>
+          <input id="bookDate" type="date" />
+        </div>
+        <div style="flex:1">
+          <label>Время старта</label>
+          <select id="startTimeSlot"></select>
+        </div>
+        <div style="flex:1">
+          <label>Длительность</label>
+          <select id="durationSlot">
+            <option value="1">1 час</option>
+            <option value="2" selected>2 часа</option>
+            <option value="3">3 часа</option>
+            <option value="4">4 часа</option>
+            <option value="24">1 сутки</option>
+            <option value="48">2 суток</option>
+          </select>
+        </div>
+      </div>
       <div class="row">
         <div style="flex:1">
           <label>Начало</label>
@@ -66,7 +92,7 @@
           <input id="endAt" type="datetime-local" />
         </div>
       </div>
-      <p class="muted" id="slotStatus">Выбери даты и время для брони</p>
+      <p class="muted" id="slotStatus">Выбери дату/время или быстрый пресет</p>
       <div id="list"></div>
     </section>
   </div>
@@ -79,6 +105,6 @@
       <button id="calcBook" class="book-btn">Забронировать сейчас</button>
     </div>
   </div>
-  <script src="offers.js?v=20260310-8"></script>
+  <script src="offers.js?v=20260310-9"></script>
 </body>
 </html>

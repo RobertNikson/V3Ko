@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Partner Cabinet</title>
-  <link rel="stylesheet" href="style.css?v=20260310-8" />
+  <link rel="stylesheet" href="style.css?v=20260310-9" />
   <script>
     try {
       const s = JSON.parse(localStorage.getItem('baikal_session') || 'null');
@@ -66,7 +66,16 @@
     </section>
 
     <section class="card">
-      <h3>4) Массовый импорт CSV</h3>
+      <h3>4) Синхронизация внешних записей (телефон/CRM)</h3>
+      <p class="muted">Если клиента записали напрямую по телефону — занеси слот как занятый, чтобы в mini app не было дублей.</p>
+      <select id="syncUnitSelect"></select>
+      <input id="syncStart" type="datetime-local" />
+      <input id="syncEnd" type="datetime-local" />
+      <button id="syncBusy">Пометить как занято (sync)</button>
+    </section>
+
+    <section class="card">
+      <h3>5) Массовый импорт CSV</h3>
       <p class="muted">Формат: <code>category,title,description,price,image_url</code></p>
       <input id="csvFile" type="file" accept=".csv,text/csv" />
       <textarea id="csvData" rows="8" placeholder="category,title,description,price,image_url&#10;equipment,Квадро тур,2 часа по берегу,4500 ₽,https://...&#10;stay,Домик у берега,уютный домик,7900 ₽ / ночь,https://..."></textarea>
@@ -130,6 +139,7 @@
 
     const listingSelect = document.getElementById('listingSelect');
     const unitSelect = document.getElementById('unitSelect');
+    const syncUnitSelect = document.getElementById('syncUnitSelect');
 
     async function loadPartnerListings(){
       const partnerId = document.getElementById('partnerId').value.trim();
@@ -141,7 +151,9 @@
     async function loadUnits(listingId){
       const partnerId = document.getElementById('partnerId').value.trim();
       const rows = await (await fetch(`${API}/partners/${partnerId}/listings/${listingId}/units`)).json();
-      unitSelect.innerHTML = rows.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+      const opts = rows.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+      unitSelect.innerHTML = opts;
+      syncUnitSelect.innerHTML = opts;
     }
 
     listingSelect.addEventListener('change', ()=> loadUnits(listingSelect.value));
@@ -168,6 +180,23 @@
         isAvailable: document.getElementById('slotAvailable').value === 'true'
       };
       const r = await fetch(`${API}/partners/${partnerId}/availability/bulk`, {
+        method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body)
+      });
+      const j = await r.json();
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+
+    document.getElementById('syncBusy').onclick = async () => {
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const body = {
+        source: 'phone_or_crm',
+        items: [{
+          unitId: syncUnitSelect.value,
+          startsAt: new Date(document.getElementById('syncStart').value).toISOString(),
+          endsAt: new Date(document.getElementById('syncEnd').value).toISOString()
+        }]
+      };
+      const r = await fetch(`${API}/partners/${partnerId}/availability/sync-busy`, {
         method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body)
       });
       const j = await r.json();

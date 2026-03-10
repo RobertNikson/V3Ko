@@ -15,6 +15,9 @@ const listEl = document.getElementById('list');
 const bundlesEl = document.getElementById('bundles');
 const startAtEl = document.getElementById('startAt');
 const endAtEl = document.getElementById('endAt');
+const bookDateEl = document.getElementById('bookDate');
+const startTimeSlotEl = document.getElementById('startTimeSlot');
+const durationSlotEl = document.getElementById('durationSlot');
 const slotStatusEl = document.getElementById('slotStatus');
 const calcSheet = document.getElementById('calcSheet');
 const calcTitle = document.getElementById('calcTitle');
@@ -359,13 +362,62 @@ document.getElementById('goRental')?.addEventListener('click', () => {
   listEl?.scrollIntoView({ behavior: 'smooth' });
 });
 
+function fmtLocal(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16); }
+function fmtDate(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
+
+function buildTimeSlots(){
+  if (!startTimeSlotEl) return;
+  startTimeSlotEl.innerHTML = '';
+  for (let h=6; h<=22; h++) {
+    const hh = String(h).padStart(2,'0');
+    const op = document.createElement('option');
+    op.value = `${hh}:00`;
+    op.textContent = `${hh}:00`;
+    startTimeSlotEl.appendChild(op);
+  }
+  startTimeSlotEl.value = '10:00';
+}
+
+function syncFromCompactPicker(){
+  if (!bookDateEl?.value || !startTimeSlotEl?.value) return;
+  const [hh, mm] = startTimeSlotEl.value.split(':').map(Number);
+  const start = new Date(`${bookDateEl.value}T00:00:00`);
+  start.setHours(hh, mm || 0, 0, 0);
+  const dur = Number(durationSlotEl?.value || 2);
+  const end = new Date(start.getTime() + dur*3600000);
+  startAtEl.value = fmtLocal(start);
+  endAtEl.value = fmtLocal(end);
+  slotStatusEl.textContent = `Выбрано: ${dur >= 24 ? (dur/24)+' сут.' : dur+' ч.'}`;
+}
+
+document.querySelectorAll('.quick-date').forEach(btn => btn.addEventListener('click', () => {
+  const now = new Date();
+  let d = new Date(now);
+  const kind = btn.dataset.kind;
+  if (kind === 'tomorrow') d.setDate(d.getDate()+1);
+  if (kind === 'weekend') {
+    const day = d.getDay();
+    const delta = day === 6 ? 0 : (6 - day + 7) % 7;
+    d.setDate(d.getDate() + delta);
+  }
+  bookDateEl.value = fmtDate(d);
+  syncFromCompactPicker();
+}));
+
+bookDateEl?.addEventListener('change', syncFromCompactPicker);
+startTimeSlotEl?.addEventListener('change', syncFromCompactPicker);
+durationSlotEl?.addEventListener('change', syncFromCompactPicker);
+
 function setDefaultRange(){
   const now = new Date();
   const start = new Date(now.getTime() + 60*60*1000);
   const end = new Date(start.getTime() + 2*60*60*1000);
-  const fmt = (d)=> new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-  startAtEl.value = fmt(start);
-  endAtEl.value = fmt(end);
+  startAtEl.value = fmtLocal(start);
+  endAtEl.value = fmtLocal(end);
+  bookDateEl.value = fmtDate(start);
+  buildTimeSlots();
+  startTimeSlotEl.value = `${String(start.getHours()).padStart(2,'0')}:00`;
+  durationSlotEl.value = '2';
   slotStatusEl.textContent = 'Диапазон выбран: можно бронировать';
 }
 startAtEl?.addEventListener('change', ()=> slotStatusEl.textContent = 'Диапазон обновлён');
