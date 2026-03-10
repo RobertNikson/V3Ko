@@ -179,7 +179,7 @@
       for (const r of required) if (!header.includes(r)) errors.push(`Нет колонки: ${r}`);
 
       const idx = (n)=>header.indexOf(n);
-      const validCats = new Set(['equipment','stay','activity']);
+      const validCats = new Set(['equipment','stay','activity','rental']);
       for(let i=1;i<lines.length;i++){
         const line = lines[i].trim();
         if(!line) continue;
@@ -187,7 +187,7 @@
         const cat = parts[idx('category')] || '';
         const title = parts[idx('title')] || '';
         const image = parts[idx('image_url')] || '';
-        if (!validCats.has(cat)) errors.push(`Строка ${i+1}: category должен быть equipment|stay|activity`);
+        if (!validCats.has(cat)) errors.push(`Строка ${i+1}: category должен быть equipment|stay|activity|rental`);
         if (!title) errors.push(`Строка ${i+1}: пустой title`);
         if (image && !/^https?:\/\//i.test(image)) errors.push(`Строка ${i+1}: image_url должен быть http(s) URL`);
       }
