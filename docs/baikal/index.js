@@ -81,19 +81,39 @@ aiInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') aiSend.click();
 });
 
-geoBtn.onclick = () => {
+async function detectGeo() {
   geoStatus.textContent = 'Определяем геолокацию…';
+
   if (!navigator.geolocation) {
-    geoStatus.textContent = 'Геолокация не поддерживается на устройстве.';
+    geoStatus.textContent = 'Геолокация не поддерживается на этом устройстве.';
     return;
   }
+
+  // Pre-check permission when available
+  try {
+    if (navigator.permissions?.query) {
+      const perm = await navigator.permissions.query({ name: 'geolocation' });
+      if (perm.state === 'denied') {
+        geoStatus.textContent = 'Доступ к геолокации запрещён. Разреши гео для Telegram в настройках телефона.';
+        return;
+      }
+    }
+  } catch {}
+
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      const { latitude, longitude } = pos.coords;
-      geoStatus.textContent = `Ваше гео: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-      try { tg?.sendData?.(JSON.stringify({ type: 'geo', latitude, longitude })); } catch {}
+      const { latitude, longitude, accuracy } = pos.coords;
+      geoStatus.textContent = `Ваше гео: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}м)`;
+      try { tg?.sendData?.(JSON.stringify({ type: 'geo', latitude, longitude, accuracy })); } catch {}
     },
-    () => { geoStatus.textContent = 'Не удалось получить геолокацию.'; },
-    { enableHighAccuracy: true, timeout: 10000 }
+    (err) => {
+      if (err?.code === 1) geoStatus.textContent = 'Гео отклонено. Разреши доступ к геолокации для Telegram.';
+      else if (err?.code === 2) geoStatus.textContent = 'Геолокация недоступна (слабый сигнал GPS/сети).';
+      else if (err?.code === 3) geoStatus.textContent = 'Таймаут геолокации. Попробуй ещё раз на улице или с включённым GPS.';
+      else geoStatus.textContent = 'Не удалось получить геолокацию.';
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
   );
-};
+}
+
+geoBtn.onclick = detectGeo;
