@@ -4,6 +4,10 @@ if (tg) { tg.ready(); tg.expand(); }
 const API = 'https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
 const params = new URLSearchParams(location.search);
 const locName = params.get('location') || 'Листвянка';
+const goal = params.get('goal') || 'relax';
+const activity = Number(params.get('activity') || 50);
+const comfort = Number(params.get('comfort') || 50);
+const budget = Number(params.get('budget') || 12000);
 
 const titleLoc = document.getElementById('titleLoc');
 const subLoc = document.getElementById('subLoc');
@@ -19,6 +23,7 @@ const calcPeriod = document.getElementById('calcPeriod');
 const calcDeposit = document.getElementById('calcDeposit');
 const calcTotal = document.getElementById('calcTotal');
 const calcBook = document.getElementById('calcBook');
+const journeySummary = document.getElementById('journeySummary');
 let selectedCat = 'equipment';
 let locationId = null;
 
@@ -29,6 +34,14 @@ const userId = session?.user?.id || null;
 
 titleLoc.textContent = locName;
 subLoc.textContent = 'Подбираем предложения…';
+
+function renderJourneySummary(){
+  const goalMap = { relax:'Перезагрузка', active:'Активный weekend', family:'Семейный отдых', romantic:'Для пары' };
+  const pace = activity > 60 ? 'динамичный' : 'спокойный';
+  const level = comfort > 60 ? 'повышенный комфорт' : 'практичный комфорт';
+  journeySummary.innerHTML = `<b>${goalMap[goal] || 'Маршрут'}</b><br>Локация: ${locName}<br>Ритм: ${pace} · ${level}<br>Бюджет: ~${budget.toLocaleString('ru-RU')} ₽/день`;
+}
+renderJourneySummary();
 
 function track(eventType, extra = {}) {
   return fetch(`${API}/analytics/event`, {

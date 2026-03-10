@@ -10,6 +10,16 @@ const aiClose = document.getElementById('aiClose');
 const aiMsgs = document.getElementById('aiMsgs');
 const aiInput = document.getElementById('aiInput');
 const aiSend = document.getElementById('aiSend');
+const goalBtns = document.querySelectorAll('.goal-btn');
+const activeRange = document.getElementById('activeRange');
+const comfortRange = document.getElementById('comfortRange');
+const budgetRange = document.getElementById('budgetRange');
+const activeVal = document.getElementById('activeVal');
+const comfortVal = document.getElementById('comfortVal');
+const budgetVal = document.getElementById('budgetVal');
+const planPreview = document.getElementById('planPreview');
+const planLocation = document.getElementById('planLocation');
+const startJourney = document.getElementById('startJourney');
 
 const seasonBackgrounds = {
   winter: './assets/bg-winter.jpg',
@@ -123,3 +133,40 @@ async function detectGeo() {
 }
 
 geoBtn.onclick = detectGeo;
+
+let selectedGoal = 'relax';
+function goalLabel(g){ return ({relax:'Перезагрузка',active:'Активный weekend',family:'Семейный отдых',romantic:'Для пары'})[g] || 'Маршрут'; }
+function buildPlan(){
+  const a = Number(activeRange?.value || 50);
+  const c = Number(comfortRange?.value || 50);
+  const b = Number(budgetRange?.value || 12000);
+  activeVal.textContent = String(a);
+  comfortVal.textContent = String(c);
+  budgetVal.textContent = String(b);
+
+  const day1 = a > 60 ? 'прокат/активность' : 'прогулка и обзорные точки';
+  const day2 = c > 60 ? 'комфортное проживание + SPA/баня' : 'бюджетный уютный формат';
+  const budgetText = b > 20000 ? 'премиум-сценарий' : b > 10000 ? 'оптимальный баланс' : 'экономный формат';
+  planPreview.innerHTML = `<b>${goalLabel(selectedGoal)}</b><br>День 1: ${day1}<br>День 2: ${day2}<br>Рекомендация: ${budgetText}.`;
+}
+
+goalBtns.forEach(btn => btn.addEventListener('click', () => {
+  selectedGoal = btn.dataset.goal;
+  goalBtns.forEach(x => x.classList.remove('active'));
+  btn.classList.add('active');
+  buildPlan();
+}));
+
+[activeRange, comfortRange, budgetRange].forEach(el => el?.addEventListener('input', buildPlan));
+startJourney?.addEventListener('click', () => {
+  const q = new URLSearchParams({
+    location: planLocation.value,
+    goal: selectedGoal,
+    activity: activeRange.value,
+    comfort: comfortRange.value,
+    budget: budgetRange.value,
+  });
+  location.href = `./offers.html?${q.toString()}`;
+});
+
+buildPlan();

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Booking</title>
-  <link rel="stylesheet" href="style.css?v=20260310-3" />
+  <link rel="stylesheet" href="style.css?v=20260310-4" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     try {
@@ -27,6 +27,29 @@
         <button id="aiBtn" class="ghost">🤖 ИИ-помощник</button>
       </div>
       <p id="geoStatus" class="muted">Геолокация не определена</p>
+    </section>
+
+    <section class="card" id="journeyBuilder">
+      <h3>Собери свой маршрут</h3>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="goal-btn" data-goal="relax">Перезагрузка</button>
+        <button class="goal-btn" data-goal="active">Активный weekend</button>
+        <button class="goal-btn" data-goal="family">Семейный отдых</button>
+        <button class="goal-btn" data-goal="romantic">Для пары</button>
+      </div>
+      <label>Активность: <span id="activeVal">50</span></label>
+      <input id="activeRange" type="range" min="0" max="100" value="50" />
+      <label>Комфорт: <span id="comfortVal">50</span></label>
+      <input id="comfortRange" type="range" min="0" max="100" value="50" />
+      <label>Бюджет / день (₽): <span id="budgetVal">12000</span></label>
+      <input id="budgetRange" type="range" min="3000" max="40000" step="500" value="12000" />
+      <div id="planPreview" class="item">Выбери цель — и я соберу маршрут.</div>
+      <div class="row">
+        <select id="planLocation">
+          <option>Листвянка</option><option>Ольхон</option><option>МРС</option><option>Малое море</option><option>Бухта Песчаная</option>
+        </select>
+        <button id="startJourney" class="book-btn">Открыть маршрут</button>
+      </div>
     </section>
 
     <section class="hero-map" id="heroMap">
@@ -57,6 +80,6 @@
     </div>
   </div>
 
-  <script src="./index.js?v=20260310-3"></script>
+  <script src="./index.js?v=20260310-4"></script>
 </body>
 </html>

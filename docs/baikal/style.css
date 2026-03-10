@@ -97,6 +97,9 @@ button{
 }
 button:hover{filter:brightness(1.08)}
 button.ghost{background:rgba(255,255,255,.03)}
+.goal-btn{width:auto;padding:10px 12px}
+.goal-btn.active{border-color:#7dd3fc;background:linear-gradient(180deg,#1a3a67,#183156)}
+input[type="range"]{accent-color:#5cc8ff}
 .book-btn{background:linear-gradient(180deg,#2dd4bf,#16a34a);border-color:#34d399;color:#04210f}
 .hero-rental{min-height:230px;border-radius:20px;overflow:hidden}
 .hero-cover{filter:brightness(.42) saturate(1.2)}
