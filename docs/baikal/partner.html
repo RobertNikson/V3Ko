@@ -65,7 +65,9 @@
       <input id="csvFile" type="file" accept=".csv,text/csv" />
       <textarea id="csvData" rows="8" placeholder="category,title,description,price,image_url&#10;equipment,Квадро тур,2 часа по берегу,4500 ₽,https://...&#10;stay,Домик у берега,уютный домик,7900 ₽ / ночь,https://..."></textarea>
       <input id="csvLocationName" placeholder="Локация для импорта (напр. Ольхон)" />
+      <button id="validateCsv" class="ghost">Проверить CSV</button>
       <button id="importCsv">Импортировать CSV</button>
+      <div id="csvValidation"></div>
       <pre id="out"></pre>
     </section>
   </div>
@@ -167,11 +169,49 @@
       document.getElementById('csvData').value = txt;
     });
 
+    function validateCsvText(csv){
+      const validation = document.getElementById('csvValidation');
+      const lines = csv.trim().split(/\r?\n/);
+      const errors = [];
+      if (!lines.length) errors.push('CSV пустой');
+      const header = (lines[0] || '').split(',').map(s=>s.trim().toLowerCase());
+      const required = ['category','title','description','price','image_url'];
+      for (const r of required) if (!header.includes(r)) errors.push(`Нет колонки: ${r}`);
+
+      const idx = (n)=>header.indexOf(n);
+      const validCats = new Set(['equipment','stay','activity']);
+      for(let i=1;i<lines.length;i++){
+        const line = lines[i].trim();
+        if(!line) continue;
+        const parts = line.split(',').map(s=>s.trim());
+        const cat = parts[idx('category')] || '';
+        const title = parts[idx('title')] || '';
+        const image = parts[idx('image_url')] || '';
+        if (!validCats.has(cat)) errors.push(`Строка ${i+1}: category должен быть equipment|stay|activity`);
+        if (!title) errors.push(`Строка ${i+1}: пустой title`);
+        if (image && !/^https?:\/\//i.test(image)) errors.push(`Строка ${i+1}: image_url должен быть http(s) URL`);
+      }
+
+      if (errors.length){
+        validation.innerHTML = `<div class="item" style="border-color:#8b2c2c">❌ Найдены ошибки:<br>${errors.map(e=>`• ${e}`).join('<br>')}</div>`;
+        return false;
+      }
+      validation.innerHTML = '<div class="item" style="border-color:#1f7a4a">✅ CSV прошёл валидацию</div>';
+      return true;
+    }
+
+    document.getElementById('validateCsv').onclick = () => {
+      const csv = document.getElementById('csvData').value;
+      validateCsvText(csv);
+    };
+
     document.getElementById('importCsv').onclick = async () => {
       const partnerId = document.getElementById('partnerId').value.trim();
       const locationName = document.getElementById('csvLocationName').value.trim();
       const locationId = await getLocationIdByName(locationName);
       const csv = document.getElementById('csvData').value;
+
+      if (!validateCsvText(csv)) return;
 
       const r = await fetch(`${API}/partners/${partnerId}/import/csv`, {
         method:'POST',
