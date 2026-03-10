@@ -42,6 +42,14 @@
       <input id="price" placeholder="Цена (напр. 4500 ₽ / 2 часа)" />
       <input id="image" placeholder="URL картинки" />
       <button id="addListing">Добавить предложение</button>
+    </section>
+
+    <section class="card">
+      <h3>3) Массовый импорт CSV</h3>
+      <p class="muted">Формат: <code>category,title,description,price,image_url</code></p>
+      <textarea id="csvData" rows="8" placeholder="category,title,description,price,image_url&#10;equipment,Квадро тур,2 часа по берегу,4500 ₽,https://...&#10;stay,Домик у берега,уютный домик,7900 ₽ / ночь,https://..."></textarea>
+      <input id="csvLocationName" placeholder="Локация для импорта (напр. Ольхон)" />
+      <button id="importCsv">Импортировать CSV</button>
       <pre id="out"></pre>
     </section>
   </div>
@@ -86,6 +94,21 @@
         units: [{ name: 'Юнит #1', capacity: 2 }]
       };
       const r = await fetch(`${API}/partners/${partnerId}/listings`, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body) });
+      const j = await r.json();
+      out.textContent = JSON.stringify(j, null, 2);
+    };
+
+    document.getElementById('importCsv').onclick = async () => {
+      const partnerId = document.getElementById('partnerId').value.trim();
+      const locationName = document.getElementById('csvLocationName').value.trim();
+      const locationId = await getLocationIdByName(locationName);
+      const csv = document.getElementById('csvData').value;
+
+      const r = await fetch(`${API}/partners/${partnerId}/import/csv`, {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({ csv, locationId })
+      });
       const j = await r.json();
       out.textContent = JSON.stringify(j, null, 2);
     };
