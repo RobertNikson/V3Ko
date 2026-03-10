@@ -19,14 +19,14 @@ button.ghost{background:transparent}
 .link{display:inline-block;color:#8ec5ff;text-decoration:none;margin-top:8px}
 
 .hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c}
-.baikal-illustration{display:block;width:100%;height:auto;min-height:260px}
-.hotspot{position:absolute;transform:translate(-50%,-50%);background:rgba(11,18,32,.82);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
+.baikal-image{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:#d9d9d9}
+.hotspot{position:absolute;transform:translate(-50%,-50%);background:rgba(11,18,32,.86);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
 .hotspot:hover{background:#16315e}
-.hs-listvyanka{left:76%;top:82%}
-.hs-olkhon{left:53%;top:35%}
-.hs-mrs{left:45%;top:50%}
-.hs-malomore{left:49%;top:28%}
-.hs-peschanaya{left:63%;top:70%}
+.hs-listvyanka{left:45%;top:84%}
+.hs-olkhon{left:58%;top:53%}
+.hs-mrs{left:47%;top:59%}
+.hs-malomore{left:54%;top:57%}
+.hs-peschanaya{left:39%;top:73%}
 
 .offer-card{display:grid;grid-template-columns:130px 1fr;gap:10px;border:1px solid #304572;border-radius:12px;overflow:hidden;background:#0e1930;margin:10px 0}
 .offer-image{width:130px;height:110px;object-fit:cover}
