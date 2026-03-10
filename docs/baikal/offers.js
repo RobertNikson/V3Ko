@@ -24,6 +24,7 @@ const calcDeposit = document.getElementById('calcDeposit');
 const calcTotal = document.getElementById('calcTotal');
 const calcBook = document.getElementById('calcBook');
 const journeySummary = document.getElementById('journeySummary');
+const journeyDays = document.getElementById('journeyDays');
 let selectedCat = 'equipment';
 let locationId = null;
 
@@ -35,13 +36,45 @@ const userId = session?.user?.id || null;
 titleLoc.textContent = locName;
 subLoc.textContent = 'Подбираем предложения…';
 
+let routePlan = {
+  day1: { slot: 'Активность', category: activity > 55 ? 'rental' : 'activity', listingId: null, title: 'Подбираем...' },
+  day2: { slot: 'Проживание', category: 'stay', listingId: null, title: 'Подбираем...' },
+};
+
 function renderJourneySummary(){
   const goalMap = { relax:'Перезагрузка', active:'Активный weekend', family:'Семейный отдых', romantic:'Для пары' };
   const pace = activity > 60 ? 'динамичный' : 'спокойный';
   const level = comfort > 60 ? 'повышенный комфорт' : 'практичный комфорт';
   journeySummary.innerHTML = `<b>${goalMap[goal] || 'Маршрут'}</b><br>Локация: ${locName}<br>Ритм: ${pace} · ${level}<br>Бюджет: ~${budget.toLocaleString('ru-RU')} ₽/день`;
 }
+
+function renderRouteDays(){
+  if (!journeyDays) return;
+  const day = (n, d) => `
+    <div class="route-day" data-day="${n}">
+      <b>День ${n}</b> · ${d.slot}<br>
+      <span>${d.title || '—'}</span><br>
+      <button class="ghost swap-btn" data-day="${n}">Заменить модуль</button>
+    </div>
+  `;
+  journeyDays.innerHTML = day(1, routePlan.day1) + day(2, routePlan.day2);
+
+  journeyDays.querySelectorAll('.swap-btn').forEach(btn => {
+    btn.onclick = () => {
+      const n = btn.dataset.day;
+      const category = n === '1' ? routePlan.day1.category : routePlan.day2.category;
+      selectedCat = category;
+      document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+      document.querySelector(`.cat-btn[data-cat="${category}"]`)?.classList.add('active');
+      listEl?.scrollIntoView({ behavior:'smooth' });
+      loadCatalog();
+      alert('Выбери карточку и нажми “В маршрут”');
+    };
+  });
+}
+
 renderJourneySummary();
+renderRouteDays();
 
 function track(eventType, extra = {}) {
   return fetch(`${API}/analytics/event`, {
@@ -169,6 +202,7 @@ function card(item) {
         <button class="book-btn">Забронировать</button>
         <button class="ghost fav-btn">В избранное</button>
         <button class="ghost rev-btn">Отзыв</button>
+        <button class="ghost route-btn">В маршрут</button>
       </div>
     </div>
   `;
@@ -194,6 +228,15 @@ function card(item) {
   };
   div.querySelector('.fav-btn').onclick = () => addFavorite(item.id);
   div.querySelector('.rev-btn').onclick = () => addQuickReview(item.id);
+  div.querySelector('.route-btn').onclick = () => {
+    if (selectedCat === 'stay') {
+      routePlan.day2 = { ...routePlan.day2, listingId: item.id, title: item.title };
+    } else {
+      routePlan.day1 = { ...routePlan.day1, listingId: item.id, title: item.title, category: selectedCat };
+    }
+    renderRouteDays();
+    alert('Добавлено в маршрут ✅');
+  };
 
   loadReviewSummary(item.id).then((s) => {
     const el = div.querySelector(`#rev-${item.id}`);

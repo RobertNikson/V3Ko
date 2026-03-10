@@ -125,4 +125,6 @@ input[type="range"]{accent-color:#5cc8ff}
   border:1px solid rgba(119,181,255,.45);
   box-shadow:0 -12px 40px rgba(0,0,0,.4);
 }
+.route-day{border:1px solid rgba(92,200,255,.25);border-radius:12px;padding:10px;margin:8px 0;background:rgba(11,20,38,.6)}
+.route-day .swap-btn{margin-top:8px;width:auto}
 
