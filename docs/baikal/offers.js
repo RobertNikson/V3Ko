@@ -31,6 +31,7 @@ const journeyDays = document.getElementById('journeyDays');
 const journeyTotal = document.getElementById('journeyTotal');
 const bookJourneyAll = document.getElementById('bookJourneyAll');
 let selectedCat = 'equipment';
+let selectedScene = 'any';
 let locationId = null;
 
 const session = (() => {
@@ -40,6 +41,21 @@ const userId = session?.user?.id || null;
 
 titleLoc.textContent = locName;
 subLoc.textContent = 'Подбираем предложения…';
+
+const heroFrames = [
+  ['Прокат и активности без хаоса', 'Собирай идеальный выходной как конструктор за 2 минуты.'],
+  ['Маршрут под твой ритм', 'Утро, день, вечер — выбирай модули и бронируй в один тап.'],
+  ['Байкал как интерактивный опыт', 'Не таблицы — а живой сценарий отдыха с динамикой и визуалом.'],
+];
+let heroIdx = 0;
+setInterval(() => {
+  heroIdx = (heroIdx + 1) % heroFrames.length;
+  const [t, x] = heroFrames[heroIdx];
+  const ht = document.getElementById('heroTitle');
+  const hx = document.getElementById('heroText');
+  if (ht) ht.textContent = t;
+  if (hx) hx.textContent = x;
+}, 5000);
 
 let routePlan = {
   day1: { slot: 'Активность', category: activity > 55 ? 'rental' : 'activity', listingId: null, title: 'Подбираем...' },
@@ -228,6 +244,12 @@ function openCalc(item, s, e, calc){
 
 document.getElementById('calcClose')?.addEventListener('click', ()=> calcSheet.classList.add('hidden'));
 
+function pickScene(item){
+  if (item.category === 'stay') return 'evening';
+  if (item.category === 'rental' || item.category === 'equipment') return 'day';
+  return 'morning';
+}
+
 function card(item) {
   const image = item.metadata?.image_url || 'https://images.unsplash.com/photo-1531131141161-ecdfb1858dd2?q=80&w=1200&auto=format&fit=crop';
   const desc = item.description || 'Описание скоро добавим';
@@ -236,6 +258,7 @@ function card(item) {
 
   const div = document.createElement('article');
   div.className = 'offer-card';
+  div.dataset.scene = pickScene(item);
   div.innerHTML = `
     <img src="${image}" alt="${item.title}" class="offer-image" />
     <div class="offer-body">
@@ -335,11 +358,12 @@ async function loadCatalog() {
   if (!locationId) return;
   const url = `${API}/catalog?locationId=${locationId}&category=${selectedCat}`;
   const rows = await (await fetch(url)).json();
+  const filtered = selectedScene === 'any' ? rows : rows.filter(r => pickScene(r) === selectedScene);
   listEl.innerHTML = '';
-  if (!rows.length) {
-    listEl.innerHTML = '<div class="item">Пока нет предложений в этой категории</div>';
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="item">Под этот сценарий пока нет подходящих модулей</div>';
   } else {
-    rows.forEach(r => listEl.appendChild(card(r)));
+    filtered.forEach(r => listEl.appendChild(card(r)));
   }
   await loadBundles();
 }
@@ -348,6 +372,15 @@ document.querySelectorAll('.cat-btn').forEach((b) => {
   b.onclick = () => {
     selectedCat = b.dataset.cat;
     document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    loadCatalog();
+  };
+});
+
+document.querySelectorAll('.scene-btn').forEach((b) => {
+  b.onclick = () => {
+    selectedScene = b.dataset.scene;
+    document.querySelectorAll('.scene-btn').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     loadCatalog();
   };

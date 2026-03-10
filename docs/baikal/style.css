@@ -128,3 +128,14 @@ input[type="range"]{accent-color:#5cc8ff}
 .route-day{border:1px solid rgba(92,200,255,.25);border-radius:12px;padding:10px;margin:8px 0;background:rgba(11,20,38,.6)}
 .route-day .swap-btn{margin-top:8px;width:auto}
 
+.scene-tabs{display:flex;gap:8px;overflow:auto;padding-bottom:4px}
+.scene-btn{width:auto;white-space:nowrap}
+.scene-btn.active{border-color:#7dd3fc;background:linear-gradient(180deg,#1a3a67,#183156)}
+.cards-rail{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:760px){
+  .cards-rail{display:flex;gap:12px;overflow:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .cards-rail .offer-card{min-width:540px;scroll-snap-align:start}
+}
+.pulse-dot{width:12px;height:12px;border-radius:999px;background:#34d399;box-shadow:0 0 0 0 rgba(52,211,153,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}70%{box-shadow:0 0 0 14px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+
