@@ -2,22 +2,13 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const API = 'https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
-
-const fallback = {
-  locations: ['Листвянка', 'Ольхон', 'МРС', 'Малое море', 'Бухта Песчаная'],
-  items: [
-    { title: 'Квадроциклы 2ч', cat: 'equipment', loc: 'Листвянка', price: '4500 ₽' },
-    { title: 'Глэмпинг у воды', cat: 'stay', loc: 'Ольхон', price: '8900 ₽/ночь' },
-    { title: 'Экскурсия на катере', cat: 'activity', loc: 'Малое море', price: '3200 ₽' },
-  ],
-};
-
 const locationEl = document.getElementById('location');
 const listEl = document.getElementById('list');
+
 let selectedCat = 'equipment';
 let selectedLocationId = null;
 let locationMap = new Map();
-let currentRows = [];
+let nameToId = new Map();
 
 function fmtIso(dt) { return new Date(dt).toISOString(); }
 
@@ -25,39 +16,25 @@ async function bookNow(row) {
   try {
     const unit = row.units?.[0];
     if (!unit) return alert('Нет доступных юнитов для брони');
-
     const start = new Date(Date.now() + 60 * 60 * 1000);
     const end = new Date(start.getTime() + (row.category === 'stay' ? 24 : 2) * 60 * 60 * 1000);
-
     const priceNum = Number(String(row.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
 
     const hold = await fetch(`${API}/bookings/hold`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        listingId: row.id,
-        unitId: unit.id,
-        startsAt: fmtIso(start),
-        endsAt: fmtIso(end),
-        price: priceNum,
-      }),
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ listingId: row.id, unitId: unit.id, startsAt: fmtIso(start), endsAt: fmtIso(end), price: priceNum }),
     });
-
     const holdJson = await hold.json();
-    if (!hold.ok) return alert('Не удалось поставить hold: ' + (holdJson.error || 'ошибка'));
+    if (!hold.ok) return alert('Hold ошибка: ' + (holdJson.error || 'unknown'));
 
     const pay = await fetch(`${API}/bookings/${holdJson.id}/pay`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ provider: 'mock' }),
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }),
     });
     const payJson = await pay.json();
-    if (!pay.ok) return alert('Ошибка оплаты: ' + (payJson.error || 'ошибка'));
+    if (!pay.ok) return alert('Оплата ошибка: ' + (payJson.error || 'unknown'));
 
     await fetch(`${API}/payments/mock/${holdJson.id}/success`, { method: 'POST' });
-
-    if (tg?.showAlert) tg.showAlert('Бронь подтверждена ✅');
-    else alert('Бронь подтверждена ✅');
+    tg?.showAlert ? tg.showAlert('Бронь подтверждена ✅') : alert('Бронь подтверждена ✅');
   } catch (e) {
     alert('Ошибка: ' + e.message);
   }
@@ -66,7 +43,7 @@ async function bookNow(row) {
 function drawItems(rows) {
   listEl.innerHTML = '';
   if (!rows.length) {
-    listEl.innerHTML = '<div class="item">Пока нет предложений</div>';
+    listEl.innerHTML = '<div class="item">Пока нет предложений для выбранной локации/категории</div>';
     return;
   }
   rows.forEach((r) => {
@@ -75,75 +52,69 @@ function drawItems(rows) {
     d.innerHTML = `<b>${r.title}</b><br><small>${locationMap.get(r.location_id) || 'Байкал'} · ${r.metadata?.price_label || 'по запросу'}</small>`;
 
     const b = document.createElement('button');
+    b.className = 'book-btn';
     b.textContent = 'Забронировать';
-    b.style.marginTop = '8px';
     b.onclick = () => bookNow(r);
-
     d.appendChild(b);
+
     listEl.appendChild(d);
   });
 }
 
-function loadFallback() {
-  locationEl.innerHTML = fallback.locations.map((x, idx) => `<option value="fb-${idx}">${x}</option>`).join('');
-  const rows = fallback.items.filter((i) => i.cat === selectedCat).map((i, idx) => ({
-    id: `fb-${idx}`,
-    title: i.title,
-    location_id: 'fb',
-    metadata: { price_label: i.price },
-    units: [{ id: `u-${idx}` }],
-    category: selectedCat,
-  }));
-  locationMap.set('fb', locationEl.value);
+async function loadCatalog() {
+  if (!selectedLocationId) return;
+  const url = `${API}/catalog?locationId=${selectedLocationId}&category=${selectedCat}`;
+  const rows = await (await fetch(url)).json();
   drawItems(rows);
 }
 
-async function loadLocations() {
-  try {
-    const roots = await (await fetch(`${API}/locations`)).json();
-    if (!roots.length) throw new Error('no roots');
-    const rootId = roots[0].id;
-    const children = await (await fetch(`${API}/locations?parentId=${rootId}`)).json();
-    if (!children.length) throw new Error('no child locations');
+function setActiveCat(cat) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach((el) => el.classList.toggle('active', el.dataset.cat === cat));
+}
 
-    locationMap = new Map(children.map((c) => [c.id, c.name]));
-    locationEl.innerHTML = children.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
-    selectedLocationId = children[0].id;
-    locationEl.onchange = () => {
-      selectedLocationId = locationEl.value;
+function activatePinByLocationName(name) {
+  document.querySelectorAll('.pin').forEach((p) => p.classList.toggle('active', p.dataset.name === name));
+}
+
+async function init() {
+  const roots = await (await fetch(`${API}/locations`)).json();
+  const children = await (await fetch(`${API}/locations?parentId=${roots[0].id}`)).json();
+
+  locationMap = new Map(children.map((c) => [c.id, c.name]));
+  nameToId = new Map(children.map((c) => [c.name, c.id]));
+
+  locationEl.innerHTML = children.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
+  selectedLocationId = children[0]?.id;
+  activatePinByLocationName(children[0]?.name);
+
+  locationEl.onchange = () => {
+    selectedLocationId = locationEl.value;
+    activatePinByLocationName(locationMap.get(selectedLocationId));
+    loadCatalog();
+  };
+
+  document.querySelectorAll('.cat-btn').forEach((b) => {
+    b.onclick = () => { setActiveCat(b.dataset.cat); loadCatalog(); };
+  });
+
+  document.querySelectorAll('.pin').forEach((p) => {
+    p.onclick = () => {
+      const id = nameToId.get(p.dataset.name);
+      if (!id) return;
+      selectedLocationId = id;
+      locationEl.value = id;
+      activatePinByLocationName(p.dataset.name);
       loadCatalog();
     };
-    await loadCatalog();
-  } catch (e) {
-    console.warn('fallback mode', e);
-    loadFallback();
-  }
+  });
+
+  document.getElementById('refresh').onclick = loadCatalog;
+
+  setActiveCat('equipment');
+  await loadCatalog();
 }
 
-async function loadCatalog() {
-  if (!selectedLocationId) return;
-  try {
-    const url = `${API}/catalog?locationId=${selectedLocationId}&category=${selectedCat}`;
-    const rows = await (await fetch(url)).json();
-    currentRows = rows;
-    drawItems(rows);
-  } catch (e) {
-    console.warn(e);
-    loadFallback();
-  }
-}
-
-document.querySelectorAll('[data-cat]').forEach((b) => {
-  b.onclick = () => {
-    selectedCat = b.dataset.cat;
-    if (selectedLocationId) loadCatalog();
-    else loadFallback();
-  };
+init().catch((e) => {
+  listEl.innerHTML = `<div class="item">Ошибка загрузки: ${e.message}</div>`;
 });
-
-document.getElementById('refresh').onclick = () => {
-  if (selectedLocationId) loadCatalog();
-  else loadFallback();
-};
-
-loadLocations();
