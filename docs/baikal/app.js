@@ -17,24 +17,85 @@ const listEl = document.getElementById('list');
 let selectedCat = 'equipment';
 let selectedLocationId = null;
 let locationMap = new Map();
+let currentRows = [];
 
-function draw(items) {
+function fmtIso(dt) { return new Date(dt).toISOString(); }
+
+async function bookNow(row) {
+  try {
+    const unit = row.units?.[0];
+    if (!unit) return alert('Нет доступных юнитов для брони');
+
+    const start = new Date(Date.now() + 60 * 60 * 1000);
+    const end = new Date(start.getTime() + (row.category === 'stay' ? 24 : 2) * 60 * 60 * 1000);
+
+    const priceNum = Number(String(row.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
+
+    const hold = await fetch(`${API}/bookings/hold`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        listingId: row.id,
+        unitId: unit.id,
+        startsAt: fmtIso(start),
+        endsAt: fmtIso(end),
+        price: priceNum,
+      }),
+    });
+
+    const holdJson = await hold.json();
+    if (!hold.ok) return alert('Не удалось поставить hold: ' + (holdJson.error || 'ошибка'));
+
+    const pay = await fetch(`${API}/bookings/${holdJson.id}/pay`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ provider: 'mock' }),
+    });
+    const payJson = await pay.json();
+    if (!pay.ok) return alert('Ошибка оплаты: ' + (payJson.error || 'ошибка'));
+
+    await fetch(`${API}/payments/mock/${holdJson.id}/success`, { method: 'POST' });
+
+    if (tg?.showAlert) tg.showAlert('Бронь подтверждена ✅');
+    else alert('Бронь подтверждена ✅');
+  } catch (e) {
+    alert('Ошибка: ' + e.message);
+  }
+}
+
+function drawItems(rows) {
   listEl.innerHTML = '';
-  if (!items.length) {
+  if (!rows.length) {
     listEl.innerHTML = '<div class="item">Пока нет предложений</div>';
     return;
   }
-  items.forEach((i) => {
+  rows.forEach((r) => {
     const d = document.createElement('div');
     d.className = 'item';
-    d.innerHTML = `<b>${i.title}</b><br><small>${i.loc || ''} · ${i.price || ''}</small>`;
+    d.innerHTML = `<b>${r.title}</b><br><small>${locationMap.get(r.location_id) || 'Байкал'} · ${r.metadata?.price_label || 'по запросу'}</small>`;
+
+    const b = document.createElement('button');
+    b.textContent = 'Забронировать';
+    b.style.marginTop = '8px';
+    b.onclick = () => bookNow(r);
+
+    d.appendChild(b);
     listEl.appendChild(d);
   });
 }
 
 function loadFallback() {
   locationEl.innerHTML = fallback.locations.map((x, idx) => `<option value="fb-${idx}">${x}</option>`).join('');
-  draw(fallback.items.filter((i) => i.cat === selectedCat));
+  const rows = fallback.items.filter((i) => i.cat === selectedCat).map((i, idx) => ({
+    id: `fb-${idx}`,
+    title: i.title,
+    location_id: 'fb',
+    metadata: { price_label: i.price },
+    units: [{ id: `u-${idx}` }],
+    category: selectedCat,
+  }));
+  locationMap.set('fb', locationEl.value);
+  drawItems(rows);
 }
 
 async function loadLocations() {
@@ -64,13 +125,8 @@ async function loadCatalog() {
   try {
     const url = `${API}/catalog?locationId=${selectedLocationId}&category=${selectedCat}`;
     const rows = await (await fetch(url)).json();
-    const items = rows.map((r) => ({
-      title: r.title,
-      cat: r.category,
-      loc: locationMap.get(r.location_id) || 'Байкал',
-      price: r.metadata?.price_label || 'по запросу',
-    }));
-    draw(items);
+    currentRows = rows;
+    drawItems(rows);
   } catch (e) {
     console.warn(e);
     loadFallback();
