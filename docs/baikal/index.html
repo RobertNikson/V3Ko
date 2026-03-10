@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baikal Booking</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>Baikal Booking</h1>
+        <p>Бронь техники, мест отдыха и развлечений</p>
+      </div>
+    </header>
+
+    <section class="card">
+      <label>1) Локация</label>
+      <select id="location"></select>
+    </section>
+
+    <section class="card">
+      <label>2) Категория</label>
+      <div class="cats">
+        <button data-cat="equipment">Техника</button>
+        <button data-cat="stay">Места</button>
+        <button data-cat="activity">Развлечения</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h3>Предложения</h3>
+        <button id="refresh" class="ghost">Обновить</button>
+      </div>
+      <div id="list" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h3>Для партнёров</h3>
+      <p>ИП/ООО могут подключить свои услуги и интеграции.</p>
+      <a class="link" href="https://robertnikson.github.io/V3Ko/baikal/partner.html">Открыть кабинет партнёра</a>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
