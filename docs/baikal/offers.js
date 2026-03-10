@@ -201,11 +201,13 @@ bookJourneyAll?.addEventListener('click', async () => {
     body: JSON.stringify({ userId, items })
   });
   const h = await hold.json();
-  if (!hold.ok) return alert(h.error || 'Не удалось собрать единый маршрут');
+  if (!hold.ok) return alert(h.error || 'Не удалось собрать маршрут');
 
-  await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
-  await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
-  alert('Маршрут забронирован одним заказом ✅');
+  for (const b of (h.bookings || [])) {
+    await fetch(`${API}/bookings/${b.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
+    await fetch(`${API}/payments/mock/${b.id}/success`, { method: 'POST' });
+  }
+  alert(`Маршрут забронирован ✅ Заказов: ${(h.bookings || []).length}`);
 });
 
 function openCalc(item, s, e, calc){
