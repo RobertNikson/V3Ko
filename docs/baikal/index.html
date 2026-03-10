@@ -15,7 +15,22 @@
     </header>
 
     <section class="hero-map">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lake_Baikal_landsat.jpg/1280px-Lake_Baikal_landsat.jpg" alt="Байкал" class="baikal-image" />
+      <svg class="baikal-illustration" viewBox="0 0 1200 680" aria-label="Байкал">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a4f89"/>
+            <stop offset="100%" stop-color="#0d223f"/>
+          </linearGradient>
+          <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4fb7ff"/>
+            <stop offset="100%" stop-color="#0f5ea8"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="1200" height="680" fill="url(#sky)"/>
+        <path d="M620 35 C690 95,760 185,735 300 C710 410,690 530,715 650 C610 635,520 585,475 480 C430 370,450 220,540 95 Z" fill="url(#water)" stroke="#a8dcff" stroke-width="6"/>
+        <ellipse cx="565" cy="245" rx="38" ry="18" fill="#7fd2ff" opacity="0.85"/>
+        <ellipse cx="705" cy="455" rx="30" ry="12" fill="#7fd2ff" opacity="0.7"/>
+      </svg>
 
       <a class="hotspot hs-listvyanka" href="./offers.html?location=Листвянка">Листвянка</a>
       <a class="hotspot hs-olkhon" href="./offers.html?location=Ольхон">Ольхон</a>

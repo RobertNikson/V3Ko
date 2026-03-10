@@ -19,7 +19,7 @@ button.ghost{background:transparent}
 .link{display:inline-block;color:#8ec5ff;text-decoration:none;margin-top:8px}
 
 .hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c}
-.baikal-image{display:block;width:100%;height:auto;min-height:260px;object-fit:cover;filter:saturate(1.05)}
+.baikal-illustration{display:block;width:100%;height:auto;min-height:260px}
 .hotspot{position:absolute;transform:translate(-50%,-50%);background:rgba(11,18,32,.82);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
 .hotspot:hover{background:#16315e}
 .hs-listvyanka{left:76%;top:82%}
