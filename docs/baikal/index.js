@@ -4,11 +4,30 @@ if (tg) { tg.ready(); tg.expand(); }
 const geoBtn = document.getElementById('geoBtn');
 const geoStatus = document.getElementById('geoStatus');
 const aiBtn = document.getElementById('aiBtn');
+const seasonBg = document.getElementById('seasonBg');
 const aiPanel = document.getElementById('aiPanel');
 const aiClose = document.getElementById('aiClose');
 const aiMsgs = document.getElementById('aiMsgs');
 const aiInput = document.getElementById('aiInput');
 const aiSend = document.getElementById('aiSend');
+
+const seasonBackgrounds = {
+  winter: './assets/bg-winter.jpg',
+  spring: './assets/bg-spring.jpg',
+  summer: './assets/bg-summer.jpg',
+  autumn: './assets/bg-autumn.jpg'
+};
+
+function detectSeason(date = new Date()) {
+  const m = date.getMonth() + 1;
+  if (m === 12 || m <= 2) return 'winter';
+  if (m >= 3 && m <= 5) return 'spring';
+  if (m >= 6 && m <= 8) return 'summer';
+  return 'autumn';
+}
+
+const season = detectSeason();
+if (seasonBg) seasonBg.style.backgroundImage = `url(${seasonBackgrounds[season]})`;
 
 const suggestions = [
   { k: ['семья', 'дет'], a: 'Для семьи чаще выбирают Листвянку и Малое море: спокойнее логистика и больше баз/экскурсий.' },

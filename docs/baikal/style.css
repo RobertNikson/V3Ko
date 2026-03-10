@@ -20,9 +20,10 @@ button.ghost{background:transparent}
 .book-btn{margin-top:10px;background:var(--ok);border-color:#16a34a;color:#06250f}
 .link{display:inline-block;color:#8ec5ff;text-decoration:none;margin-top:8px}
 
-.hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c}
-.baikal-image{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:#d9d9d9}
-.hotspot{position:absolute;transform:translate(-50%,-50%);background:rgba(11,18,32,.86);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
+.hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c;min-height:420px}
+.bg-layer{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.72) saturate(1.1);z-index:0}
+.baikal-image{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:transparent}
+.hotspot{position:absolute;z-index:2;transform:translate(-50%,-50%);background:rgba(11,18,32,.86);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
 .hotspot:hover{background:#16315e}
 .hs-listvyanka{left:45%;top:84%}
 .hs-olkhon{left:58%;top:53%}
