@@ -25,6 +25,8 @@ const calcTotal = document.getElementById('calcTotal');
 const calcBook = document.getElementById('calcBook');
 const journeySummary = document.getElementById('journeySummary');
 const journeyDays = document.getElementById('journeyDays');
+const journeyTotal = document.getElementById('journeyTotal');
+const bookJourneyAll = document.getElementById('bookJourneyAll');
 let selectedCat = 'equipment';
 let locationId = null;
 
@@ -46,6 +48,17 @@ function renderJourneySummary(){
   const pace = activity > 60 ? 'динамичный' : 'спокойный';
   const level = comfort > 60 ? 'повышенный комфорт' : 'практичный комфорт';
   journeySummary.innerHTML = `<b>${goalMap[goal] || 'Маршрут'}</b><br>Локация: ${locName}<br>Ритм: ${pace} · ${level}<br>Бюджет: ~${budget.toLocaleString('ru-RU')} ₽/день`;
+}
+
+function estimateRouteTotal(){
+  const items = [routePlan.day1, routePlan.day2].filter(x => x?.listing);
+  const sum = items.reduce((acc, x) => {
+    const base = Number(String(x.listing?.metadata?.price_label || '').replace(/[^\d]/g, '')) || 0;
+    const calc = rentalCalc(x.listing, currentRange().s, currentRange().e);
+    return acc + (calc?.total || base || 3000);
+  }, 0);
+  journeyTotal.textContent = `Итого: ${sum ? sum.toLocaleString('ru-RU') + ' ₽' : '—'}`;
+  return sum;
 }
 
 function renderRouteDays(){
@@ -71,6 +84,7 @@ function renderRouteDays(){
       alert('Выбери карточку и нажми “В маршрут”');
     };
   });
+  estimateRouteTotal();
 }
 
 renderJourneySummary();
@@ -161,6 +175,20 @@ async function performBooking(item, s, e, priceNum, calc) {
   alert(`Бронь подтверждена ✅${calc ? `\nИтого аренда: ${calc.total} ₽ (${calc.qty} ${calc.unit === 'day' ? 'сут.' : 'ч.'})` : ''}`);
 }
 
+bookJourneyAll?.addEventListener('click', async () => {
+  const { s, e } = currentRange();
+  if (!s || !e) return alert('Сначала выбери даты и время для всего маршрута');
+  const sequence = [routePlan.day1?.listing, routePlan.day2?.listing].filter(Boolean);
+  if (!sequence.length) return alert('Добавь модули в маршрут');
+
+  for (const item of sequence) {
+    const calc = rentalCalc(item, s, e);
+    const priceNum = calc?.total || Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
+    await performBooking(item, s, e, priceNum, calc);
+  }
+  alert('Маршрут забронирован целиком ✅');
+});
+
 function openCalc(item, s, e, calc){
   calcTitle.textContent = item.title;
   calcMeta.textContent = item.metadata?.rental?.terms || 'Прокат с прозрачным расчётом';
@@ -230,9 +258,9 @@ function card(item) {
   div.querySelector('.rev-btn').onclick = () => addQuickReview(item.id);
   div.querySelector('.route-btn').onclick = () => {
     if (selectedCat === 'stay') {
-      routePlan.day2 = { ...routePlan.day2, listingId: item.id, title: item.title };
+      routePlan.day2 = { ...routePlan.day2, listingId: item.id, title: item.title, listing: item };
     } else {
-      routePlan.day1 = { ...routePlan.day1, listingId: item.id, title: item.title, category: selectedCat };
+      routePlan.day1 = { ...routePlan.day1, listingId: item.id, title: item.title, category: selectedCat, listing: item };
     }
     renderRouteDays();
     alert('Добавлено в маршрут ✅');
