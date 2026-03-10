@@ -36,11 +36,17 @@
       <h3>2) Добавить услугу/товар</h3>
       <input id="partnerId" placeholder="Partner ID" />
       <input id="locationName" placeholder="Локация (напр. Листвянка)" />
-      <select id="cat"><option value="equipment">Техника</option><option value="stay">Места</option><option value="activity">Развлечения</option></select>
+      <select id="cat"><option value="equipment">Техника</option><option value="rental">Прокат</option><option value="stay">Места</option><option value="activity">Развлечения</option></select>
       <input id="title" placeholder="Название услуги" />
       <textarea id="desc" placeholder="Описание услуги"></textarea>
       <input id="price" placeholder="Цена (напр. 4500 ₽ / 2 часа)" />
       <input id="image" placeholder="URL картинки" />
+      <div class="row">
+        <select id="rentalUnit"><option value="hour">Тариф за час</option><option value="day">Тариф за сутки</option></select>
+        <input id="rentalRate" placeholder="Ставка, ₽" />
+      </div>
+      <input id="rentalDeposit" placeholder="Залог, ₽ (опционально)" />
+      <input id="rentalTerms" placeholder="Условия проката" />
       <button id="addListing">Добавить предложение</button>
     </section>
 
@@ -107,7 +113,13 @@
         description: document.getElementById('desc').value,
         metadata: {
           price_label: document.getElementById('price').value,
-          image_url: document.getElementById('image').value
+          image_url: document.getElementById('image').value,
+          rental: {
+            unit: document.getElementById('rentalUnit').value,
+            rate: Number(document.getElementById('rentalRate').value || 0),
+            deposit: Number(document.getElementById('rentalDeposit').value || 0),
+            terms: document.getElementById('rentalTerms').value || ''
+          }
         },
         units: [{ name: 'Юнит #1', capacity: 2 }]
       };

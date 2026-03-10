@@ -57,6 +57,16 @@ function currentRange(){
   return { s, e };
 }
 
+function rentalCalc(item, s, e){
+  const r = item.metadata?.rental;
+  if (!r?.rate || !s || !e) return null;
+  const ms = new Date(e) - new Date(s);
+  if (ms <= 0) return null;
+  const hours = ms / 3600000;
+  const qty = r.unit === 'day' ? Math.ceil(hours / 24) : Math.ceil(hours);
+  return { qty, total: qty * Number(r.rate), unit: r.unit || 'hour', deposit: Number(r.deposit || 0) };
+}
+
 async function addFavorite(listingId) {
   if (!userId) return alert('Сначала войди как пользователь на странице auth');
   const r = await fetch(`${API}/users/${userId}/favorites`, {
@@ -80,6 +90,7 @@ function card(item) {
   const image = item.metadata?.image_url || 'https://images.unsplash.com/photo-1531131141161-ecdfb1858dd2?q=80&w=1200&auto=format&fit=crop';
   const desc = item.description || 'Описание скоро добавим';
   const price = item.metadata?.price_label || 'по запросу';
+  const rental = item.metadata?.rental;
 
   const div = document.createElement('article');
   div.className = 'offer-card';
@@ -89,6 +100,7 @@ function card(item) {
       <h4>${item.title}</h4>
       <p>${desc}</p>
       <div class="offer-meta">${price}</div>
+      ${rental ? `<div class="offer-meta">Прокат: ${rental.rate || '?'} ₽ / ${rental.unit === 'day' ? 'сутки' : 'час'} · залог ${rental.deposit || 0} ₽</div><div class="offer-meta">${rental.terms || ''}</div>` : ''}
       <div class="offer-meta" id="rev-${item.id}">рейтинг: ...</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="book-btn">Забронировать</button>
@@ -113,7 +125,8 @@ function card(item) {
     const avj = await av.json();
     if (!avj.available) return alert('Этот слот уже занят, выбери другое время');
 
-    const priceNum = Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
+    const calc = rentalCalc(item, s, e);
+    const priceNum = calc?.total || Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
     const hold = await fetch(`${API}/bookings/hold`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ userId, listingId: item.id, unitId: unit.id, startsAt: s, endsAt: e, price: priceNum })
@@ -125,7 +138,7 @@ function card(item) {
     await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
     await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
     track('booking_confirm', { listingId: item.id, payload: { bookingId: h.id } });
-    alert('Бронь подтверждена ✅');
+    alert(`Бронь подтверждена ✅${calc ? `\nИтого аренда: ${calc.total} ₽ (${calc.qty} ${calc.unit === 'day' ? 'сут.' : 'ч.'})` : ''}`);
   };
   div.querySelector('.fav-btn').onclick = () => addFavorite(item.id);
   div.querySelector('.rev-btn').onclick = () => addQuickReview(item.id);
