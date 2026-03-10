@@ -51,12 +51,16 @@ button.ghost{background:transparent}
 .ai-input-wrap input{flex:1;margin:0}
 .ai-input-wrap button{width:auto}
 
-.offer-card{display:grid;grid-template-columns:130px 1fr;gap:10px;border:1px solid #304572;border-radius:12px;overflow:hidden;background:#0e1930;margin:10px 0}
+.offer-card{display:grid;grid-template-columns:130px 1fr;gap:10px;border:1px solid #304572;border-radius:12px;overflow:hidden;background:#0e1930;margin:10px 0;cursor:pointer;transition:.2s ease}
+.offer-card:hover{border-color:#4a6fb2;transform:translateY(-1px)}
+.offer-card.expanded{border-color:#62a1ff;box-shadow:0 8px 28px rgba(29,78,216,.22)}
 .offer-image{width:130px;height:110px;object-fit:cover}
 .offer-body{padding:10px}
 .offer-body h4{margin:0 0 6px}
 .offer-body p{margin:0 0 8px;color:var(--muted);font-size:13px}
 .offer-meta{font-size:13px;font-weight:700;margin-bottom:8px}
+.offer-details{display:none;margin-top:8px;padding:8px;border:1px dashed #3c5e9c;border-radius:10px;color:#dbeafe;font-size:13px}
+.offer-card.expanded .offer-details{display:block}
 
 textarea,input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #304572;background:#0f1728;color:var(--text);margin:6px 0}
 

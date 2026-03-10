@@ -144,9 +144,15 @@ function card(item) {
       <h4>${item.title}</h4>
       <p>${desc}</p>
       <div class="offer-meta">${price}</div>
-      ${rental ? `<div class="offer-meta">Прокат: ${rental.rate || '?'} ₽ / ${rental.unit === 'day' ? 'сутки' : 'час'} · залог ${rental.deposit || 0} ₽</div><div class="offer-meta">${rental.terms || ''}</div>` : ''}
+      ${rental ? `<div class="offer-meta">Прокат: ${rental.rate || '?'} ₽ / ${rental.unit === 'day' ? 'сутки' : 'час'} · залог ${rental.deposit || 0} ₽</div>` : ''}
       <div class="offer-meta" id="rev-${item.id}">рейтинг: ...</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <small class="muted">Нажми на карточку для подробностей</small>
+      <div class="offer-details">
+        <div><b>Партнёр:</b> ${item.partner_name || '—'}</div>
+        ${rental ? `<div><b>Условия:</b> ${rental.terms || 'уточняйте у партнёра'}</div>` : ''}
+        <div><b>Юнитов доступно:</b> ${item.units?.length || 0}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button class="book-btn">Забронировать</button>
         <button class="ghost fav-btn">В избранное</button>
         <button class="ghost rev-btn">Отзыв</button>
@@ -154,6 +160,11 @@ function card(item) {
     </div>
   `;
   track('listing_view', { listingId: item.id, payload: { category: item.category } });
+
+  div.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    div.classList.toggle('expanded');
+  });
 
   div.querySelector('.book-btn').onclick = async () => {
     track('book_click', { listingId: item.id, payload: { category: item.category } });
