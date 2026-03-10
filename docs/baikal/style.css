@@ -22,14 +22,14 @@ button.ghost{background:transparent}
 
 .hero-map{position:relative;border:1px solid #2a3d68;border-radius:14px;overflow:hidden;background:#0c172c;min-height:420px}
 .bg-layer{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.72) saturate(1.1);z-index:0}
-.baikal-image{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:transparent}
+.baikal-image{position:relative;z-index:1;display:block;height:72vh;max-height:620px;width:auto;margin:10px auto;object-fit:contain;background:transparent}
 .hotspot{position:absolute;z-index:2;transform:translate(-50%,-50%);background:rgba(11,18,32,.86);border:1px solid #4e7cc7;color:#fff;padding:6px 10px;border-radius:999px;text-decoration:none;font-size:12px}
 .hotspot:hover{background:#16315e}
-.hs-listvyanka{left:45%;top:84%}
-.hs-olkhon{left:58%;top:53%}
-.hs-mrs{left:47%;top:59%}
-.hs-malomore{left:54%;top:57%}
-.hs-peschanaya{left:39%;top:73%}
+.hs-listvyanka{left:45%;top:86%}
+.hs-olkhon{left:56%;top:54%}
+.hs-mrs{left:49%;top:60%}
+.hs-malomore{left:53%;top:57%}
+.hs-peschanaya{left:41%;top:74%}
 
 .ai-panel{position:fixed;left:10px;right:10px;bottom:10px;background:#0f1728;border:1px solid #35508a;border-radius:12px;z-index:9999;max-height:65vh;display:flex;flex-direction:column}
 .ai-panel.hidden{display:none}
