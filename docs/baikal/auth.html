@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baikal Booking · Вход</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1>Baikal Booking</h1>
+      <p>Вход и регистрация</p>
+    </header>
+
+    <section class="card">
+      <label>Я пользователь</label>
+      <input id="uName" placeholder="Имя" />
+      <input id="uPhone" placeholder="Телефон" />
+      <button id="userRegister">Зарегистрироваться</button>
+      <button id="userAuth" class="ghost">Войти через Telegram</button>
+    </section>
+
+    <section class="card">
+      <label>Я партнёр (ИП/ООО)</label>
+      <input id="pName" placeholder="Название" />
+      <select id="pType"><option value="ip">ИП</option><option value="ooo">ООО</option><option value="self_employed">Самозанятый</option></select>
+      <input id="pInn" placeholder="ИНН" />
+      <input id="pLegal" placeholder="Юр. название" />
+      <button id="partnerRegister">Зарегистрировать партнёра</button>
+    </section>
+
+    <section class="card"><pre id="authOut"></pre></section>
+  </div>
+  <script src="auth.js?v=1"></script>
+</body>
+</html>

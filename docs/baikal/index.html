@@ -6,12 +6,19 @@
   <title>Baikal Booking</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    try {
+      const s = localStorage.getItem('baikal_session');
+      if (!s) location.replace('./auth.html');
+    } catch {}
+  </script>
 </head>
 <body>
   <div class="app">
     <header class="topbar">
       <h1>Baikal Booking</h1>
       <p>Выберите локацию на Байкале</p>
+      <p><a class="link" href="#" id="logoutBtn">Выйти</a></p>
     </header>
 
     <section class="card">

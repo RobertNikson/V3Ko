@@ -81,6 +81,12 @@ aiInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') aiSend.click();
 });
 
+document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  localStorage.removeItem('baikal_session');
+  location.href = './auth.html';
+});
+
 async function detectGeo() {
   geoStatus.textContent = 'Определяем геолокацию…';
 
