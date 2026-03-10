@@ -166,8 +166,8 @@ startJourney?.addEventListener('click', () => {
     comfort: comfortRange.value,
     budget: budgetRange.value,
   });
-  q.set('appv', '20260310-13');
-  location.href = `./offers.html?${q.toString()}`;
+  q.set('appv', '20260310-14');
+  location.href = `./offers-v2.html?${q.toString()}`;
 });
 
 buildPlan();

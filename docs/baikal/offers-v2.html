@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baikal Booking · Предложения</title>
+  <link rel="stylesheet" href="style.css?v=20260310-14" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar row">
+      <div>
+        <h1 id="titleLoc">Предложения V2</h1>
+        <p id="subLoc">Загрузка…</p>
+      </div>
+      <a class="link" href="./index.html">← К маршруту</a>
+    </header>
+
+    <section class="card">
+      <h3>Ваш маршрут</h3>
+      <div id="journeySummary" class="item">Подбираем персональный сценарий…</div>
+      <div id="journeyDays" class="item"></div>
+      <div id="journeyCheckout" class="item">
+        <div id="journeyTotal">Итого: —</div>
+        <button id="bookJourneyAll" class="book-btn">Забронировать всё</button>
+      </div>
+    </section>
+
+    <section class="hero-rental card">
+      <div class="hero-cover"></div>
+      <div class="hero-content">
+        <h2 id="heroTitle">Прокат на Байкале — быстро и красиво</h2>
+        <p id="heroText">SUP, квадроциклы, каяки и другое с прозрачной ценой и подтверждением в пару кликов.</p>
+        <div class="row" style="align-items:center">
+          <button id="goRental" class="book-btn">Выбрать прокат</button>
+          <div class="pulse-dot" title="live"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h3>Сценарий дня</h3>
+        <button id="storyModeBtn" class="ghost" style="width:auto">Story mode</button>
+      </div>
+      <div class="scene-tabs" id="sceneTabs">
+        <button class="scene-btn active" data-scene="any">Весь день</button>
+        <button class="scene-btn" data-scene="morning">Утро</button>
+        <button class="scene-btn" data-scene="day">День</button>
+        <button class="scene-btn" data-scene="evening">Вечер</button>
+      </div>
+      <div id="storyHint" class="muted" style="margin-top:6px">Свайпай карточки влево/вправо</div>
+    </section>
+
+    <section class="card">
+      <label>Категория</label>
+      <div class="cats cats-4">
+        <button class="cat-btn active" data-cat="equipment">Техника</button>
+        <button class="cat-btn" data-cat="rental">Прокат</button>
+        <button class="cat-btn" data-cat="stay">Проживание</button>
+        <button class="cat-btn" data-cat="activity">Развлечения</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Пакеты и подборки</h3>
+      <div id="bundles"></div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h3>Каталог</h3>
+        <button id="refresh" class="ghost">Обновить</button>
+      </div>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="ghost quick-date" data-kind="today">Сегодня</button>
+        <button class="ghost quick-date" data-kind="tomorrow">Завтра</button>
+        <button class="ghost quick-date" data-kind="weekend">Выходные</button>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>Дата</label>
+          <input id="bookDate" type="date" />
+        </div>
+        <div style="flex:1">
+          <label>Время старта</label>
+          <select id="startTimeSlot"></select>
+        </div>
+        <div style="flex:1">
+          <label>Длительность</label>
+          <select id="durationSlot">
+            <option value="1">1 час</option>
+            <option value="2" selected>2 часа</option>
+            <option value="3">3 часа</option>
+            <option value="4">4 часа</option>
+            <option value="24">1 сутки</option>
+            <option value="48">2 суток</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>Начало</label>
+          <input id="startAt" type="datetime-local" />
+        </div>
+        <div style="flex:1">
+          <label>Конец</label>
+          <input id="endAt" type="datetime-local" />
+        </div>
+      </div>
+      <p class="muted" id="slotStatus">Выбери дату/время или быстрый пресет</p>
+      <div id="list" class="cards-rail"></div>
+    </section>
+  </div>
+  <div id="calcSheet" class="calc-sheet hidden">
+    <div class="calc-card">
+      <div class="row"><h3 id="calcTitle">Расчёт</h3><button id="calcClose" class="ghost" style="width:auto">✕</button></div>
+      <p id="calcMeta" class="muted"></p>
+      <div class="row"><div><small>Период</small><div id="calcPeriod"></div></div><div><small>Залог</small><div id="calcDeposit"></div></div></div>
+      <h2 id="calcTotal">0 ₽</h2>
+      <button id="calcBook" class="book-btn">Забронировать сейчас</button>
+    </div>
+  </div>
+  <script src="offers.js?v=20260310-14"></script>
+</body>
+</html>
