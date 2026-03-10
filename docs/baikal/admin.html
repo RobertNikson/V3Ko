@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Moderation</title><link rel="stylesheet" href="style.css?v=20260310-9"></head>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Moderation</title><link rel="stylesheet" href="style.css?v=20260310-10"></head>
 <body><div class="app"><h2>Модерация карточек</h2><button id="load">Обновить</button><div id="list"></div>
 
 <h2 style="margin-top:20px">Аналитика воронки (7 дней)</h2>
 <div id="funnel" class="item">Загрузка...</div>
 <div id="byLoc" class="item">Загрузка...</div>
+
+<h2 style="margin-top:20px">Финансы (30 дней)</h2>
+<div id="financeSummary" class="item">Загрузка...</div>
+<div id="financeLatest"></div>
 
 <h2 style="margin-top:20px">Пакеты</h2>
 <div class="item">
@@ -58,6 +62,22 @@ async function load(){
 
   const loc = await api('/admin/analytics/by-location?days=7');
   document.getElementById('byLoc').innerHTML = loc.map(x=>`• ${x.location}: <b>${x.events}</b>`).join('<br>') || 'Нет данных';
+
+  const fin = await api('/admin/finance/summary?days=30');
+  document.getElementById('financeSummary').innerHTML = `
+    Оборот (gross): <b>${Number(fin.totals.gross).toLocaleString('ru-RU')} ₽</b><br>
+    Комиссия платформы: <b>${Number(fin.totals.platform_fee).toLocaleString('ru-RU')} ₽</b><br>
+    Эквайринг: <b>${Number(fin.totals.acquiring_fee).toLocaleString('ru-RU')} ₽</b><br>
+    Выплаты партнёрам: <b>${Number(fin.totals.partner_payout).toLocaleString('ru-RU')} ₽</b><br>
+    Заказов: <b>${fin.totals.bookings_count}</b>
+  `;
+  const latestEl = document.getElementById('financeLatest');
+  latestEl.innerHTML = '';
+  fin.latest.slice(0,20).forEach(x=>{
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML = `<b>${x.partner_name || 'Партнёр'}</b> · ${x.location_name || ''}<br><small>${new Date(x.created_at).toLocaleString()}</small><br>gross ${Number(x.gross_amount||0).toLocaleString('ru-RU')} ₽ · fee ${Number(x.platform_fee_amount||0).toLocaleString('ru-RU')} ₽ · payout ${Number(x.partner_payout_amount||0).toLocaleString('ru-RU')} ₽`;
+    latestEl.appendChild(d);
+  });
 
   await loadBundles();
  }catch(e){
