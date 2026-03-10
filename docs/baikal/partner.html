@@ -47,6 +47,7 @@
     <section class="card">
       <h3>3) Массовый импорт CSV</h3>
       <p class="muted">Формат: <code>category,title,description,price,image_url</code></p>
+      <input id="csvFile" type="file" accept=".csv,text/csv" />
       <textarea id="csvData" rows="8" placeholder="category,title,description,price,image_url&#10;equipment,Квадро тур,2 часа по берегу,4500 ₽,https://...&#10;stay,Домик у берега,уютный домик,7900 ₽ / ночь,https://..."></textarea>
       <input id="csvLocationName" placeholder="Локация для импорта (напр. Ольхон)" />
       <button id="importCsv">Импортировать CSV</button>
@@ -97,6 +98,13 @@
       const j = await r.json();
       out.textContent = JSON.stringify(j, null, 2);
     };
+
+    document.getElementById('csvFile').addEventListener('change', async (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const txt = await f.text();
+      document.getElementById('csvData').value = txt;
+    });
 
     document.getElementById('importCsv').onclick = async () => {
       const partnerId = document.getElementById('partnerId').value.trim();
