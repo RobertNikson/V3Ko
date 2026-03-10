@@ -4,19 +4,40 @@
 <script>
 const API='https://rscczdcmlr.tail3f3f1d.ts.net/baikal-api';
 const list=document.getElementById('list');
-async function load(){
- const rows=await (await fetch(`${API}/admin/listings/moderation`)).json();
- list.innerHTML='';
- rows.forEach(r=>{
-  const d=document.createElement('div'); d.className='item';
-  d.innerHTML=`<b>${r.title}</b><br><small>${r.category} · listing:${r.listing_status} · moderation:${r.moderation_status||'none'}</small><br>`;
-  const a=document.createElement('button'); a.textContent='Approve'; a.onclick=()=>mod(r.id,'approved');
-  const rej=document.createElement('button'); rej.textContent='Reject'; rej.className='ghost'; rej.onclick=()=>mod(r.id,'rejected');
-  d.appendChild(a); d.appendChild(rej); list.appendChild(d);
- });
+let adminKey = localStorage.getItem('baikal_admin_key') || '';
+if(!adminKey){
+  adminKey = prompt('Введи admin key');
+  if(adminKey) localStorage.setItem('baikal_admin_key', adminKey);
 }
+
+async function api(path, opts={}){
+  const headers = Object.assign({'x-admin-key': adminKey}, opts.headers||{});
+  const r = await fetch(`${API}${path}`, {...opts, headers});
+  if(!r.ok){
+    const t = await r.text();
+    throw new Error(`HTTP ${r.status}: ${t}`);
+  }
+  return r.json();
+}
+
+async function load(){
+ try{
+  const rows=await api('/admin/listings/moderation');
+  list.innerHTML='';
+  rows.forEach(r=>{
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML=`<b>${r.title}</b><br><small>${r.category} · listing:${r.listing_status} · moderation:${r.moderation_status||'none'}</small><br>`;
+    const a=document.createElement('button'); a.textContent='Approve'; a.onclick=()=>mod(r.id,'approved');
+    const rej=document.createElement('button'); rej.textContent='Reject'; rej.className='ghost'; rej.onclick=()=>mod(r.id,'rejected');
+    d.appendChild(a); d.appendChild(rej); list.appendChild(d);
+  });
+ }catch(e){
+  list.innerHTML = `<div class='item'>Ошибка: ${e.message}</div>`;
+ }
+}
+
 async function mod(id,status){
- await fetch(`${API}/admin/listings/${id}/moderate`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status})});
+ await api(`/admin/listings/${id}/moderate`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({status})});
  load();
 }
 document.getElementById('load').onclick=load; load();
