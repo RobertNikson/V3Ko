@@ -166,6 +166,7 @@ startJourney?.addEventListener('click', () => {
     comfort: comfortRange.value,
     budget: budgetRange.value,
   });
+  q.set('appv', '20260310-13');
   location.href = `./offers.html?${q.toString()}`;
 });
 
