@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Booking</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
   <div class="app">
@@ -18,17 +20,9 @@
 
     <section class="card map-card">
       <div class="row">
-        <label>0) Карта Байкала (быстрый выбор локации)</label>
+        <label>0) Карта Байкала (тайлы + маркеры + зум)</label>
       </div>
-      <svg id="baikalMap" viewBox="0 0 360 180" class="map" aria-label="Карта Байкала">
-        <rect x="0" y="0" width="360" height="180" rx="12" fill="#0b162d"/>
-        <path d="M190 10 C 210 30, 230 60, 220 90 C 210 120, 205 145, 210 170 C 180 165, 155 150, 145 120 C 135 90, 145 50, 170 20 Z" fill="#1d5fa8" stroke="#6db2ff" stroke-width="2"/>
-        <g class="pin" data-name="Листвянка" transform="translate(198,165)"><circle r="6" fill="#ffcc4d"/><text x="10" y="4">Листвянка</text></g>
-        <g class="pin" data-name="Ольхон" transform="translate(175,75)"><circle r="6" fill="#ffcc4d"/><text x="10" y="4">Ольхон</text></g>
-        <g class="pin" data-name="МРС" transform="translate(160,95)"><circle r="6" fill="#ffcc4d"/><text x="10" y="4">МРС</text></g>
-        <g class="pin" data-name="Малое море" transform="translate(155,62)"><circle r="6" fill="#ffcc4d"/><text x="10" y="4">Малое море</text></g>
-        <g class="pin" data-name="Бухта Песчаная" transform="translate(210,140)"><circle r="6" fill="#ffcc4d"/><text x="10" y="4">Бухта Песчаная</text></g>
-      </svg>
+      <div id="map" class="real-map" aria-label="Карта Байкала"></div>
     </section>
 
     <section class="card">

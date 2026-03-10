@@ -9,6 +9,16 @@ let selectedCat = 'equipment';
 let selectedLocationId = null;
 let locationMap = new Map();
 let nameToId = new Map();
+let markers = new Map();
+let map;
+
+const LOCATION_COORDS = {
+  'Листвянка': [51.8538, 104.8691],
+  'Ольхон': [53.1550, 107.4100],
+  'МРС': [52.9862, 106.9007],
+  'Малое море': [53.0310, 106.9760],
+  'Бухта Песчаная': [52.2607, 105.7070],
+};
 
 function fmtIso(dt) { return new Date(dt).toISOString(); }
 
@@ -73,40 +83,61 @@ function setActiveCat(cat) {
   document.querySelectorAll('.cat-btn').forEach((el) => el.classList.toggle('active', el.dataset.cat === cat));
 }
 
-function activatePinByLocationName(name) {
-  document.querySelectorAll('.pin').forEach((p) => p.classList.toggle('active', p.dataset.name === name));
+function focusMapByLocationName(name) {
+  const m = markers.get(name);
+  if (m && map) {
+    map.setView(m.getLatLng(), 10, { animate: true });
+    m.openPopup();
+  }
+}
+
+function initMap() {
+  map = L.map('map', { zoomControl: true }).setView([53.4, 107.8], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(map);
+}
+
+function rebuildMarkers(children) {
+  markers.forEach((m) => m.remove());
+  markers.clear();
+
+  children.forEach((loc) => {
+    const coords = LOCATION_COORDS[loc.name];
+    if (!coords) return;
+    const marker = L.marker(coords).addTo(map).bindPopup(`<b>${loc.name}</b>`);
+    marker.on('click', () => {
+      selectedLocationId = loc.id;
+      locationEl.value = loc.id;
+      loadCatalog();
+    });
+    markers.set(loc.name, marker);
+  });
 }
 
 async function init() {
+  initMap();
+
   const roots = await (await fetch(`${API}/locations`)).json();
   const children = await (await fetch(`${API}/locations?parentId=${roots[0].id}`)).json();
 
   locationMap = new Map(children.map((c) => [c.id, c.name]));
   nameToId = new Map(children.map((c) => [c.name, c.id]));
+  rebuildMarkers(children);
 
   locationEl.innerHTML = children.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
   selectedLocationId = children[0]?.id;
-  activatePinByLocationName(children[0]?.name);
+  focusMapByLocationName(children[0]?.name);
 
   locationEl.onchange = () => {
     selectedLocationId = locationEl.value;
-    activatePinByLocationName(locationMap.get(selectedLocationId));
+    focusMapByLocationName(locationMap.get(selectedLocationId));
     loadCatalog();
   };
 
   document.querySelectorAll('.cat-btn').forEach((b) => {
     b.onclick = () => { setActiveCat(b.dataset.cat); loadCatalog(); };
-  });
-
-  document.querySelectorAll('.pin').forEach((p) => {
-    p.onclick = () => {
-      const id = nameToId.get(p.dataset.name);
-      if (!id) return;
-      selectedLocationId = id;
-      locationEl.value = id;
-      activatePinByLocationName(p.dataset.name);
-      loadCatalog();
-    };
   });
 
   document.getElementById('refresh').onclick = loadCatalog;
