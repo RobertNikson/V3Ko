@@ -181,12 +181,31 @@ bookJourneyAll?.addEventListener('click', async () => {
   const sequence = [routePlan.day1?.listing, routePlan.day2?.listing].filter(Boolean);
   if (!sequence.length) return alert('Добавь модули в маршрут');
 
-  for (const item of sequence) {
+  const items = sequence.map(item => {
     const calc = rentalCalc(item, s, e);
     const priceNum = calc?.total || Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
-    await performBooking(item, s, e, priceNum, calc);
-  }
-  alert('Маршрут забронирован целиком ✅');
+    return {
+      listingId: item.id,
+      unitId: item.units?.[0]?.id,
+      startsAt: s,
+      endsAt: e,
+      price: priceNum,
+    };
+  });
+
+  if (items.some(x => !x.unitId)) return alert('У одного из модулей нет доступного юнита');
+
+  const hold = await fetch(`${API}/bookings/route-hold`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ userId, items })
+  });
+  const h = await hold.json();
+  if (!hold.ok) return alert(h.error || 'Не удалось собрать единый маршрут');
+
+  await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
+  await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
+  alert('Маршрут забронирован одним заказом ✅');
 });
 
 function openCalc(item, s, e, calc){
