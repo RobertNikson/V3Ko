@@ -17,9 +17,18 @@
       <a class="link" href="./index.html">← К карте</a>
     </header>
 
+    <section class="hero-rental card">
+      <div class="hero-cover"></div>
+      <div class="hero-content">
+        <h2>Прокат на Байкале — быстро и красиво</h2>
+        <p>SUP, квадроциклы, каяки и другое с прозрачной ценой и подтверждением в пару кликов.</p>
+        <button id="goRental" class="book-btn">Выбрать прокат</button>
+      </div>
+    </section>
+
     <section class="card">
       <label>Категория</label>
-      <div class="cats">
+      <div class="cats cats-4">
         <button class="cat-btn active" data-cat="equipment">Техника</button>
         <button class="cat-btn" data-cat="rental">Прокат</button>
         <button class="cat-btn" data-cat="stay">Проживание</button>
@@ -51,6 +60,15 @@
       <div id="list"></div>
     </section>
   </div>
-  <script src="offers.js?v=2"></script>
+  <div id="calcSheet" class="calc-sheet hidden">
+    <div class="calc-card">
+      <div class="row"><h3 id="calcTitle">Расчёт</h3><button id="calcClose" class="ghost" style="width:auto">✕</button></div>
+      <p id="calcMeta" class="muted"></p>
+      <div class="row"><div><small>Период</small><div id="calcPeriod"></div></div><div><small>Залог</small><div id="calcDeposit"></div></div></div>
+      <h2 id="calcTotal">0 ₽</h2>
+      <button id="calcBook" class="book-btn">Забронировать сейчас</button>
+    </div>
+  </div>
+  <script src="offers.js?v=3"></script>
 </body>
 </html>

@@ -12,6 +12,13 @@ const bundlesEl = document.getElementById('bundles');
 const startAtEl = document.getElementById('startAt');
 const endAtEl = document.getElementById('endAt');
 const slotStatusEl = document.getElementById('slotStatus');
+const calcSheet = document.getElementById('calcSheet');
+const calcTitle = document.getElementById('calcTitle');
+const calcMeta = document.getElementById('calcMeta');
+const calcPeriod = document.getElementById('calcPeriod');
+const calcDeposit = document.getElementById('calcDeposit');
+const calcTotal = document.getElementById('calcTotal');
+const calcBook = document.getElementById('calcBook');
 let selectedCat = 'equipment';
 let locationId = null;
 
@@ -86,6 +93,43 @@ async function addQuickReview(listingId) {
   if (r.ok) alert('Отзыв сохранён ✅');
 }
 
+async function performBooking(item, s, e, priceNum, calc) {
+  const unit = item.units?.[0];
+  if (!unit) return alert('Нет доступного юнита');
+
+  const av = await fetch(`${API}/availability/query?unitId=${unit.id}&startsAt=${encodeURIComponent(s)}&endsAt=${encodeURIComponent(e)}`);
+  const avj = await av.json();
+  if (!avj.available) return alert('Этот слот уже занят, выбери другое время');
+
+  const hold = await fetch(`${API}/bookings/hold`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ userId, listingId: item.id, unitId: unit.id, startsAt: s, endsAt: e, price: priceNum })
+  });
+  const h = await hold.json();
+  if (!hold.ok) return alert(h.error || 'Ошибка hold');
+  track('booking_hold', { listingId: item.id, payload: { bookingId: h.id } });
+
+  await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
+  await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
+  track('booking_confirm', { listingId: item.id, payload: { bookingId: h.id } });
+  alert(`Бронь подтверждена ✅${calc ? `\nИтого аренда: ${calc.total} ₽ (${calc.qty} ${calc.unit === 'day' ? 'сут.' : 'ч.'})` : ''}`);
+}
+
+function openCalc(item, s, e, calc){
+  calcTitle.textContent = item.title;
+  calcMeta.textContent = item.metadata?.rental?.terms || 'Прокат с прозрачным расчётом';
+  calcPeriod.textContent = `${new Date(s).toLocaleString()} → ${new Date(e).toLocaleString()}`;
+  calcDeposit.textContent = `${calc.deposit || 0} ₽`;
+  calcTotal.textContent = `${calc.total} ₽`;
+  calcBook.onclick = async () => {
+    await performBooking(item, s, e, calc.total, calc);
+    calcSheet.classList.add('hidden');
+  };
+  calcSheet.classList.remove('hidden');
+}
+
+document.getElementById('calcClose')?.addEventListener('click', ()=> calcSheet.classList.add('hidden'));
+
 function card(item) {
   const image = item.metadata?.image_url || 'https://images.unsplash.com/photo-1531131141161-ecdfb1858dd2?q=80&w=1200&auto=format&fit=crop';
   const desc = item.description || 'Описание скоро добавим';
@@ -118,27 +162,11 @@ function card(item) {
     if (!s || !e) return alert('Сначала выбери дату и время начала/конца');
     if (new Date(e) <= new Date(s)) return alert('Конец должен быть позже начала');
 
-    const unit = item.units?.[0];
-    if (!unit) return alert('Нет доступного юнита');
-
-    const av = await fetch(`${API}/availability/query?unitId=${unit.id}&startsAt=${encodeURIComponent(s)}&endsAt=${encodeURIComponent(e)}`);
-    const avj = await av.json();
-    if (!avj.available) return alert('Этот слот уже занят, выбери другое время');
-
     const calc = rentalCalc(item, s, e);
     const priceNum = calc?.total || Number(String(item.metadata?.price_label || '').replace(/[^\d]/g, '')) || 3000;
-    const hold = await fetch(`${API}/bookings/hold`, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ userId, listingId: item.id, unitId: unit.id, startsAt: s, endsAt: e, price: priceNum })
-    });
-    const h = await hold.json();
-    if (!hold.ok) return alert(h.error || 'Ошибка hold');
-    track('booking_hold', { listingId: item.id, payload: { bookingId: h.id } });
 
-    await fetch(`${API}/bookings/${h.id}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider: 'mock' }) });
-    await fetch(`${API}/payments/mock/${h.id}/success`, { method: 'POST' });
-    track('booking_confirm', { listingId: item.id, payload: { bookingId: h.id } });
-    alert(`Бронь подтверждена ✅${calc ? `\nИтого аренда: ${calc.total} ₽ (${calc.qty} ${calc.unit === 'day' ? 'сут.' : 'ч.'})` : ''}`);
+    if (item.category === 'rental' && calc) return openCalc(item, s, e, calc);
+    await performBooking(item, s, e, priceNum, calc);
   };
   div.querySelector('.fav-btn').onclick = () => addFavorite(item.id);
   div.querySelector('.rev-btn').onclick = () => addQuickReview(item.id);
@@ -207,6 +235,13 @@ document.querySelectorAll('.cat-btn').forEach((b) => {
 });
 
 document.getElementById('refresh').onclick = loadCatalog;
+document.getElementById('goRental')?.addEventListener('click', () => {
+  selectedCat = 'rental';
+  document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+  document.querySelector('.cat-btn[data-cat="rental"]')?.classList.add('active');
+  loadCatalog();
+  listEl?.scrollIntoView({ behavior: 'smooth' });
+});
 
 function setDefaultRange(){
   const now = new Date();

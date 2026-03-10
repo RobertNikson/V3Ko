@@ -11,7 +11,15 @@ select,button{width:100%;padding:11px;border-radius:10px;border:1px solid #30457
 button{cursor:pointer;font-weight:600}
 button.ghost{background:transparent}
 .cats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cats-4{grid-template-columns:1fr 1fr 1fr 1fr}
 .cat-btn.active{border-color:var(--accent);background:#10213f}
+.hero-rental{position:relative;overflow:hidden;min-height:180px}
+.hero-cover{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;filter:brightness(.45)}
+.hero-content{position:relative;z-index:1}
+.hero-content h2{margin:0 0 8px}
+.calc-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:10000}
+.calc-sheet.hidden{display:none}
+.calc-card{width:min(900px,100%);background:#101a31;border:1px solid #365388;border-radius:16px 16px 0 0;padding:14px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .row button{width:auto}
 .row > button{flex:1}
