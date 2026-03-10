@@ -8,6 +8,7 @@ const locName = params.get('location') || 'Листвянка';
 const titleLoc = document.getElementById('titleLoc');
 const subLoc = document.getElementById('subLoc');
 const listEl = document.getElementById('list');
+const bundlesEl = document.getElementById('bundles');
 const startAtEl = document.getElementById('startAt');
 const endAtEl = document.getElementById('endAt');
 const slotStatusEl = document.getElementById('slotStatus');
@@ -125,6 +126,32 @@ async function resolveLocationId() {
   return found?.id || children[0]?.id;
 }
 
+function renderBundles(rows){
+  if(!bundlesEl) return;
+  bundlesEl.innerHTML='';
+  if(!rows?.length){ bundlesEl.innerHTML='<div class="item">Пакетов пока нет</div>'; return; }
+  rows.forEach(b=>{
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML = `<b>${b.title}</b><br><small>${b.description || ''}</small><br><small>${b.price_label || ''}</small>`;
+    if (Array.isArray(b.items) && b.items.length) {
+      const ul=document.createElement('ul');
+      b.items.forEach(i=>{ const li=document.createElement('li'); li.textContent=`${i.title} (${i.category})`; ul.appendChild(li);});
+      d.appendChild(ul);
+    }
+    bundlesEl.appendChild(d);
+  });
+}
+
+async function loadBundles(){
+  if (!locationId || !bundlesEl) return;
+  try {
+    const rows = await (await fetch(`${API}/bundles?locationId=${locationId}`)).json();
+    renderBundles(rows);
+  } catch {
+    bundlesEl.innerHTML='<div class="item">Не удалось загрузить пакеты</div>';
+  }
+}
+
 async function loadCatalog() {
   if (!locationId) return;
   const url = `${API}/catalog?locationId=${locationId}&category=${selectedCat}`;
@@ -132,9 +159,10 @@ async function loadCatalog() {
   listEl.innerHTML = '';
   if (!rows.length) {
     listEl.innerHTML = '<div class="item">Пока нет предложений в этой категории</div>';
-    return;
+  } else {
+    rows.forEach(r => listEl.appendChild(card(r)));
   }
-  rows.forEach(r => listEl.appendChild(card(r)));
+  await loadBundles();
 }
 
 document.querySelectorAll('.cat-btn').forEach((b) => {
