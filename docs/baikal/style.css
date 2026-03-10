@@ -66,3 +66,60 @@ textarea,input,select{width:100%;padding:10px;border-radius:10px;border:1px soli
 
 .real-map{width:100%;height:320px;border:1px solid #2a3d68;border-radius:12px;overflow:hidden}
 .leaflet-container{background:#0b162d}
+
+/* ===== Premium visual override ===== */
+:root{
+  --bg:#070b16;
+  --card:rgba(17,27,48,.72);
+  --line:rgba(142,197,255,.24);
+  --accent:#5cc8ff;
+}
+body{
+  background:
+    radial-gradient(1200px 500px at 20% -10%, rgba(92,200,255,.18), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, rgba(99,102,241,.18), transparent 60%),
+    linear-gradient(180deg, #050910 0%, #0a1326 100%);
+}
+.app{max-width:980px;padding:18px}
+.card{
+  background:linear-gradient(180deg, rgba(17,27,48,.85), rgba(12,20,36,.78));
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 10px 35px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(10px);
+}
+.topbar h1{font-size:30px;letter-spacing:.2px}
+.topbar p{font-size:14px}
+button{
+  border:1px solid rgba(138,187,255,.4);
+  background:linear-gradient(180deg,#152a4f,#10213f);
+  box-shadow:0 8px 18px rgba(14,54,117,.35);
+}
+button:hover{filter:brightness(1.08)}
+button.ghost{background:rgba(255,255,255,.03)}
+.book-btn{background:linear-gradient(180deg,#2dd4bf,#16a34a);border-color:#34d399;color:#04210f}
+.hero-rental{min-height:230px;border-radius:20px;overflow:hidden}
+.hero-cover{filter:brightness(.42) saturate(1.2)}
+.hero-content{padding:12px 6px}
+.hero-content h2{font-size:28px;line-height:1.15;margin-bottom:10px}
+.hero-content p{max-width:640px;color:#d6e6ff}
+.offer-card{
+  grid-template-columns:170px 1fr;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(14,25,48,.92), rgba(12,22,41,.86));
+  border:1px solid rgba(106,155,229,.35);
+}
+.offer-image{width:170px;height:132px}
+.offer-body h4{font-size:20px;margin-bottom:8px}
+.offer-meta{font-size:14px}
+.offer-details{
+  background:rgba(9,16,30,.6);
+  border:1px solid rgba(92,200,255,.35);
+  border-radius:12px;
+}
+.calc-card{
+  background:linear-gradient(180deg,#132447,#0e1b33);
+  border:1px solid rgba(119,181,255,.45);
+  box-shadow:0 -12px 40px rgba(0,0,0,.4);
+}
+
