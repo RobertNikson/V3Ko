@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baikal Booking · Предложения</title>
-  <link rel="stylesheet" href="style.css?v=20260310-11" />
+  <link rel="stylesheet" href="style.css?v=20260310-12" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -40,13 +40,17 @@
     </section>
 
     <section class="card">
-      <h3>Сценарий дня</h3>
+      <div class="row">
+        <h3>Сценарий дня</h3>
+        <button id="storyModeBtn" class="ghost" style="width:auto">Story mode</button>
+      </div>
       <div class="scene-tabs" id="sceneTabs">
         <button class="scene-btn active" data-scene="any">Весь день</button>
         <button class="scene-btn" data-scene="morning">Утро</button>
         <button class="scene-btn" data-scene="day">День</button>
         <button class="scene-btn" data-scene="evening">Вечер</button>
       </div>
+      <div id="storyHint" class="muted" style="margin-top:6px">Свайпай карточки влево/вправо</div>
     </section>
 
     <section class="card">
@@ -118,6 +122,6 @@
       <button id="calcBook" class="book-btn">Забронировать сейчас</button>
     </div>
   </div>
-  <script src="offers.js?v=20260310-11"></script>
+  <script src="offers.js?v=20260310-12"></script>
 </body>
 </html>

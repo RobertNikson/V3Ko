@@ -32,6 +32,7 @@ const journeyTotal = document.getElementById('journeyTotal');
 const bookJourneyAll = document.getElementById('bookJourneyAll');
 let selectedCat = 'equipment';
 let selectedScene = 'any';
+let storyMode = false;
 let locationId = null;
 
 const session = (() => {
@@ -56,6 +57,13 @@ setInterval(() => {
   if (ht) ht.textContent = t;
   if (hx) hx.textContent = x;
 }, 5000);
+
+window.addEventListener('scroll', () => {
+  const cover = document.querySelector('.hero-cover');
+  if (!cover) return;
+  const y = window.scrollY * 0.18;
+  cover.style.transform = `translateY(${y}px) scale(1.05)`;
+});
 
 let routePlan = {
   day1: { slot: 'Активность', category: activity > 55 ? 'rental' : 'activity', listingId: null, title: 'Подбираем...' },
@@ -364,6 +372,12 @@ async function loadCatalog() {
     listEl.innerHTML = '<div class="item">Под этот сценарий пока нет подходящих модулей</div>';
   } else {
     filtered.forEach(r => listEl.appendChild(card(r)));
+
+  const cards = listEl.querySelectorAll('.offer-card');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.15 });
+  cards.forEach(c=> io.observe(c));
   }
   await loadBundles();
 }
@@ -384,6 +398,12 @@ document.querySelectorAll('.scene-btn').forEach((b) => {
     b.classList.add('active');
     loadCatalog();
   };
+});
+
+document.getElementById('storyModeBtn')?.addEventListener('click', () => {
+  storyMode = !storyMode;
+  document.getElementById('storyModeBtn').textContent = storyMode ? 'Story mode: ON' : 'Story mode';
+  listEl.classList.toggle('story-mode', storyMode);
 });
 
 document.getElementById('refresh').onclick = loadCatalog;
